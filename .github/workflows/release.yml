@@ -7,7 +7,7 @@ on:
     paths: Packages/com.pjkt.sdk/**
 
 env:
-  packageName: "com.vrchat.demo-template"
+  packageName: "com.pjkt.sdk"
 
 permissions:
   contents: write
