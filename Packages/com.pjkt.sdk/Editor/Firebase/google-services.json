@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "121538216131",
+    "firebase_url": "https://projekt-staff-default-rtdb.firebaseio.com/",
+    "project_id": "projekt-staff",
+    "storage_bucket": "projekt-staff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:121538216131:android:59fe1c2129da58d7c0a276",
+        "android_client_info": {
+          "package_name": "com.DefaultCompany.PJKTPrivate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "121538216131-cm3mud7un1rfaq1msq3kvnvudqe23nlc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZ5WdA9BbZUMAtlKxKKN-8579f2_AQucI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "121538216131-cm3mud7un1rfaq1msq3kvnvudqe23nlc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
