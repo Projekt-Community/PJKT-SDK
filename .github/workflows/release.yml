@@ -41,11 +41,11 @@ jobs:
           
       - run: find "Packages/${{env.packageName}}/" -name \*.meta >> metaList
           
-      - name: Create UnityPackage
-        uses: pCYSl5EDgo/create-unitypackage@cfcd3cf0391a5ef1306342794866a9897c32af0b
-        with:
-          package-path: ${{ env.unityPackage }}
-          include-files: metaList
+      #- name: Create UnityPackage
+       # uses: pCYSl5EDgo/create-unitypackage@cfcd3cf0391a5ef1306342794866a9897c32af0b
+        #with:
+         # package-path: ${{ env.unityPackage }}
+          #include-files: metaList
         
         
       - name: Make Release
@@ -54,5 +54,5 @@ jobs:
           tag_name: ${{ steps.version.outputs.prop }}
           files: |
             ${{ env.zipFile }}
-            ${{ env.unityPackage }}
+          #  ${{ env.unityPackage }}
             Packages/${{ env.packageName }}/package.json
