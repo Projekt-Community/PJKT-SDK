@@ -69,7 +69,7 @@ namespace PJKT.SDK.Window
             GUI.DrawTexture(new Rect(position.width / 2 - 128, 0, 256, 128), pjktLogoText, ScaleMode.ScaleToFit, true, 0); //Draw text
             GUILayout.Space(128);
 
-            GUIStyle communityNameStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.UpperRight, normal = { textColor = Color.yellow } };
+            
 
             //Force current screen to the login screen if we are not logged in or the current screen is null
             if (currentWindow == null || !AuthData.isAuthorized && !(currentWindow is PJKTLoginScreen)) SwitchTo<PJKTLoginScreen>();
@@ -80,40 +80,41 @@ namespace PJKT.SDK.Window
                 currentWindow.OnGUI();
                 GUILayout.Space(16);
                 GUILayout.EndScrollView();
-                return;
             }
+            else
+            {
+                DrawGreeting();
+                currentWindow.OnGUI();
+            }
+        }
 
-
+        private void DrawGreeting()
+        {
+            GUIStyle communityNameStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.UpperRight, normal = { textColor = Color.yellow } };
+            
             //Greeting
             GUILayout.Space(16);
-            GUILayout.BeginHorizontal();
-                GUILayout.Space(16);
-                GUILayout.BeginVertical();
-                    GUILayout.BeginHorizontal();
-                        GUILayout.FlexibleSpace();
-                        GUILayout.Label("Welcome to the projekt");
-                        GUILayout.Label(AuthData.communityName, communityNameStyle);
-                        GUILayout.FlexibleSpace();
-                    GUILayout.EndHorizontal();
-                GUILayout.EndVertical();
-                GUILayout.Space(16);
-            GUILayout.EndHorizontal();
+            using (new GUILayout.HorizontalScope())
+            {
+                GUILayout.FlexibleSpace();
+                GUILayout.Label("Welcome to the projekt");
+                GUILayout.Label(AuthData.communityName, communityNameStyle);
+                GUILayout.FlexibleSpace();
+            }
             GUILayout.Space(16);
 
             //Screen swappers
-                //Show a tab for each of the Windows specified in the tabs array
-                tabNumber = GUILayout.SelectionGrid(tabNumber, tabNames, tabNames.Length);
-                switch (tabNumber)
-                {
-                    case 0:
-                        if (currentWindow.GetType() != typeof(PJKTCustomBoothWindow)) SwitchTo<PJKTCustomBoothWindow>();
-                        break;
-                    case 1:
-                        if (currentWindow.GetType() != typeof(PJKTAccountWindow)) SwitchTo<PJKTAccountWindow>();
-                        break;
-                }
-
-            currentWindow.OnGUI();
+            //Show a tab for each of the Windows specified in the tabs array
+            tabNumber = GUILayout.SelectionGrid(tabNumber, tabNames, tabNames.Length);
+            switch (tabNumber)
+            {
+                case 0:
+                    if (currentWindow.GetType() != typeof(PJKTCustomBoothWindow)) SwitchTo<PJKTCustomBoothWindow>();
+                    break;
+                case 1:
+                    if (currentWindow.GetType() != typeof(PJKTAccountWindow)) SwitchTo<PJKTAccountWindow>();
+                    break;
+            }
         }
 
         private void DoTabGui<T>(T window) where T : PJKTWindow
@@ -150,7 +151,7 @@ namespace PJKT.SDK.Window
         }
 
         private void OnSelectionChange() {
-            Repaint();
+            //Repaint();
         }
 
         private void OnFocus()
