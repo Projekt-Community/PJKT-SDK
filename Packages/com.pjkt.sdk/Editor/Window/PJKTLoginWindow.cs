@@ -28,6 +28,7 @@ namespace PJKT.SDK.Window
             {
                 //mainWindow.SwitchTo<PJKTBoothUploaderWindow>();
                 mainWindow.SwitchTo<PJKTCustomBoothWindow>();
+                return;
             }
 
             GUILayout.Space(16);
