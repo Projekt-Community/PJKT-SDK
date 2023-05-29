@@ -389,7 +389,7 @@ namespace PJKT.SDK
         
         public void LoadTextures()
         {
-            Debug.Log("Loading textures");
+            //Debug.Log("Loading textures");
             excelentIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.vrchat.base/Runtime/VRCSDK/Dependencies/VRChat/Resources/PerformanceIcons/Perf_Great_32.png");
             goodIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.vrchat.base/Runtime/VRCSDK/Dependencies/VRChat/Resources/PerformanceIcons/Perf_Good_32.png");
             mediumIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.vrchat.base/Runtime/VRCSDK/Dependencies/VRChat/Resources/PerformanceIcons/Perf_Medium_32.png");

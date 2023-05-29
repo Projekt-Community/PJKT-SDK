@@ -1,12 +1,3 @@
-/////////////////////////////////////////////////////////
-///                                                   ///
-///    Written by Chanoler                            ///
-///    If you are a VRChat employee please hire me    ///
-///    chanolercreations@gmail.com                    ///
-///                                                   ///
-/////////////////////////////////////////////////////////
-
-
 using UnityEngine;
 
 namespace PJKT.SDK.Window
@@ -100,6 +91,12 @@ namespace PJKT.SDK.Window
         internal override void OnFocus()
         {
             
+        }
+
+        internal override void OnOpen()
+        {
+            displayNameField = AuthData.displayName;
+            emailAddressField = AuthData.emailAddress;
         }
     }
 }

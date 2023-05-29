@@ -1,11 +1,3 @@
-/////////////////////////////////////////////////////////
-///                                                   ///
-///    Written by Chanoler                            ///
-///    If you are a VRChat employee please hire me    ///
-///    chanolercreations@gmail.com                    ///
-///                                                   ///
-/////////////////////////////////////////////////////////
-
 using System.IO;
 
 namespace PJKT.SDK

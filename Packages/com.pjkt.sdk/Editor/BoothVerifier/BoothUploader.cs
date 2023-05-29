@@ -13,8 +13,11 @@ namespace PJKT.SDK
 {
     internal static class BoothUploader
     {
-        private static string prefabPath = "Assets/PJKTCustomBooth/";
-        private static string packagePath = "Assets/PJKTCustomBooth/";
+        private static string defaultPrefabPath = "Assets/PJKTCustomBooth/";
+        private static string defaultPackagePath = "Assets/PJKTCustomBooth/";
+        
+        private static string prefabPath = "";
+        private static string packagePath = "";
         
         public static async Task UploadBoothAsync(BoothDescriptor boothDescriptor)
         {
@@ -29,16 +32,17 @@ namespace PJKT.SDK
             {
                 success = await UploadBoothToServer();
             }
-            CleanupOperations();
             
+            CleanupOperations();
             if (success) EditorUtility.DisplayDialog("Booth Uploaded Successfully", "Your booth was uploaded to the server. :)" , "Yay!");
         }
 
         private static async Task<bool> CreateBoothPackage(BoothDescriptor boothDescriptor)
         {
-            prefabPath += AuthData.communityName +"/" + boothDescriptor.boothName + ".prefab";
-            packagePath += AuthData.communityName +"/" + boothDescriptor.boothName + ".unitypackage";
-
+            Debug.Log("<color=#4557f7>PJKT SDK</color>: Packaging up booth");
+            prefabPath = defaultPrefabPath + AuthData.communityName +"/" + boothDescriptor.boothName + ".prefab";
+            packagePath = defaultPackagePath + AuthData.communityName +"/" + boothDescriptor.boothName + ".unitypackage";
+            
             try
             {
                 //Turn the booth into a prefab
@@ -78,6 +82,7 @@ namespace PJKT.SDK
 
         private static async Task<bool> UploadBoothToServer()
         {
+            Debug.Log("<color=#4557f7>PJKT SDK</color>: Uploading to PJKT");
             try
             {
                 //Upload the UnityPackage
@@ -90,6 +95,18 @@ namespace PJKT.SDK
                 response = await PJKTNet.SendMessage(uploadMessage);
                 
                 //check if there is an issue with response
+                string stream;
+                stream = await response.Content.ReadAsStringAsync();
+
+                string[] responseMessages = stream.Split(',');
+                
+                //Debug.Log(stream);
+                if (responseMessages[0].Contains("error"))
+                {
+                    EditorUtility.DisplayDialog("Booth Upload Error", "Couldn't upload booth to server :(", "Oh ok");
+                    Debug.LogError("<color=#4557f7>PJKT SDK</color>: Error uploading booth. " + stream);
+                    return false;
+                }
 
                 return true;
             }
@@ -104,14 +121,19 @@ namespace PJKT.SDK
         private static void CleanupOperations()
         {
             //Delete the temporary files and folders
+            Debug.Log("<color=#4557f7>PJKT SDK</color>: Cleaning up temporary files");
             if (File.Exists(prefabPath)) File.Delete(prefabPath);
             if (File.Exists(prefabPath + ".meta")) File.Delete(prefabPath + ".meta");
             if (File.Exists(packagePath)) File.Delete(packagePath);
             if (File.Exists(packagePath + ".meta")) File.Delete(packagePath + ".meta");
-            if (Directory.Exists(Path.GetDirectoryName(prefabPath))) Directory.Delete(Path.GetDirectoryName(prefabPath));
-            if (Directory.Exists(Path.GetDirectoryName(prefabPath)  + ".meta")) Directory.Delete(Path.GetDirectoryName(prefabPath) + ".meta");
+            //if (Directory.Exists(Path.GetDirectoryName(prefabPath))) Directory.Delete(Path.GetDirectoryName(prefabPath));
+            //if (Directory.Exists(Path.GetDirectoryName(prefabPath)  + ".meta")) Directory.Delete(Path.GetDirectoryName(prefabPath) + ".meta");
 
+            prefabPath = "";
+            packagePath = "";
+            
             //Refresh the asset database
+            Debug.Log("<color=#4557f7>PJKT SDK</color>: Refreshing AssetDatabase");
             AssetDatabase.Refresh();
         }
     }
