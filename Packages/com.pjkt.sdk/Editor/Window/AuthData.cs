@@ -1,11 +1,3 @@
-/////////////////////////////////////////////////////////
-///                                                   ///
-///    Written by Chanoler                            ///
-///    If you are a VRChat employee please hire me    ///
-///    chanolercreations@gmail.com                    ///
-///                                                   ///
-/////////////////////////////////////////////////////////
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -16,6 +8,7 @@ using Firebase.Auth;
 using System.Threading.Tasks;
 using PJKT.SDK.NET;
 using PJKT.SDK.NET.Messages;
+using System.IO;
 
 namespace PJKT.SDK.Window
 {
@@ -27,6 +20,7 @@ namespace PJKT.SDK.Window
     {
         //Firebase variables
         private const string AppOptionsPath = "Packages/com.pjkt.sdk/Editor/Firebase/google-services.json";
+        private static readonly string cookiePath = Application.persistentDataPath + "/Projekt Community/UnityEditor/";
         private readonly static FirebaseApp app; //Readonly
         private readonly static FirebaseAuth auth; //Readonly
         private static FirebaseUser previousUser;
@@ -103,6 +97,7 @@ namespace PJKT.SDK.Window
         }
 
         internal static string PjktCookie = "";
+        
         internal static string loginMessage { get; private set; } = ""; //Contains the response from the server
 
         //Static constructor, called once on Unity start or recompile
@@ -115,6 +110,8 @@ namespace PJKT.SDK.Window
             auth = FirebaseAuth.GetAuth(app);
             auth.StateChanged += AuthStateChanged;
             AuthStateChanged(null, null);
+
+            if (File.Exists(cookiePath + "cookies.pjkt")) PjktCookie = File.ReadAllText(cookiePath + "cookies.pjkt");
         }
 
         internal static void AuthStateChanged(object sender, System.EventArgs eventArgs) {
@@ -151,41 +148,51 @@ namespace PJKT.SDK.Window
         //Login with email and password
         internal static Task Login(string email, string password, EditorWindow caller = null)
         {
-            Debug.Log("Logging in");
+            Debug.Log("<color=#4557f7>PJKT SDK</color>: Logging in");
             return auth.SignInWithEmailAndPasswordAsync(email, password).ContinueWith(async task => {
                 if (task.IsCanceled) {
                     ErrorResponseHandler("SignInWithEmailAndPasswordAsync was canceled.");
+                    return;
                 }
                 if (task.IsFaulted) {
                     ErrorResponseHandler("SignInWithEmailAndPasswordAsync encountered an error: \n" + task.Exception.Flatten().Message + " \nDid you enter the correct email and password?");
+                    return;
                 }
 
-                //Send accessorial data to the PJKT Comm server
-                Debug.Log("sending login to pjkt");
-                PJKTLoginMessage accountCreationMessage = new PJKTLoginMessage();
-                HttpResponseMessage pjktNetResponse = await PJKTNet.SendMessage(accountCreationMessage);
-                //Debug.Log("response recieved " + pjktNetResponse.Headers + " Body " +pjktNetResponse.Content);
-
-                IEnumerable<string> cookieHeaders;
-                
-                //Debug.Log(pjktNetResponse.Headers);
-                if (pjktNetResponse.Headers.TryGetValues("set-cookie", out  cookieHeaders))
-                {
-                    //Debug.Log(cookieHeaders.FirstOrDefault());
-                    string[] headerdata = cookieHeaders.FirstOrDefault().Split(';');
-                    string cookie = headerdata[0];
-                    
-                    PjktCookie = cookie.Substring(8);
-                    //Debug.Log("PJKT Cookie: " +PjktCookie);
-                }
-                else Debug.Log("token not there?");
-
-                //PJKTLoginResponseMessage response = JsonUtility.FromJson<PJKTLoginResponseMessage>(pjktNetResponse);
-                //TODO handle the response
-                
+                await PJKTLogin();
                 if (caller != null) caller.Repaint();
-                else Debug.Log("Did not repaint");
+                //else Debug.Log("Did not repaint");
             });
+        }
+
+        internal static async Task PJKTLogin()
+        {
+            Debug.Log("<color=#4557f7>PJKT SDK</color>: Contacting PJKT services...");
+            
+            PJKTLoginMessage loginMessage = new PJKTLoginMessage();
+            HttpResponseMessage pjktNetResponse = await PJKTNet.SendMessage(loginMessage);
+
+            IEnumerable<string> cookieHeaders;
+                
+            if (pjktNetResponse.Headers.TryGetValues("set-cookie", out  cookieHeaders))
+            {
+                string[] headerdata = cookieHeaders.FirstOrDefault().Split(';');
+                string cookie = headerdata[0];
+                
+                PjktCookie = cookie.Substring(8);
+                if (!Directory.Exists(cookiePath)) Directory.CreateDirectory(cookiePath);
+                File.WriteAllText(cookiePath + "cookies.pjkt", PjktCookie);
+               
+                //logout when unity closes
+                EditorApplication.quitting += Logout;
+                
+                Debug.Log("<color=#4557f7>PJKT SDK</color>: Logged in");
+            }
+            else
+            {
+                Debug.LogError("<color=#4557f7>PJKT SDK</color>: Unable to login to PJKT Services, try restarting unity?");
+                auth.SignOut();
+            }
         }
 
         internal static Task RequestProfileUpdate(EditorWindow caller = null)
@@ -197,12 +204,12 @@ namespace PJKT.SDK.Window
                 if (task.IsFaulted) {
                     ErrorResponseHandler("RequestProfileUpdate encountered an error: \n" +  task.Exception + " \nDid you enter the correct email and password?");
                 }
-                    Debug.Log("Profile Response: " + task.Result);
+                //Debug.Log("Profile Response: " + task.Result);
                 
                 _pjktProfile = JsonUtility.FromJson<PJKTProfile>(task.Result);
 
                 if (caller != null) caller.Repaint();
-                else Debug.Log("Did not repaint");
+                //else Debug.Log("Did not repaint");
                 return Task.CompletedTask;
             });
         }
@@ -220,30 +227,29 @@ namespace PJKT.SDK.Window
                     ErrorResponseHandler("CreateUserWithEmailAndPasswordAsync encountered an error:\n" + task.Exception + "\nDid you enter the correct email and password?");
                 }
 
-                AuthData.displayName = newDisplayName;
-
-                //Send accessorial data to the PJKT Comm server
-                PJKTAccountCreationMessage accountCreation = new PJKTAccountCreationMessage(newGroupName, token);
-                HttpResponseMessage pjktNetResponse = await PJKTNet.SendMessage(accountCreation);
-
-                Debug.Log("response recieved");
-
-                IEnumerable<string> cookieHeaders;
-                
-                Debug.Log(pjktNetResponse.Headers);
-                if (pjktNetResponse.Headers.TryGetValues("set-cookie", out  cookieHeaders))
+                //set usernames
+                UserProfile profile = new UserProfile
                 {
-                    Debug.Log(cookieHeaders.FirstOrDefault());
-                    string[] headerdata = cookieHeaders.FirstOrDefault().Split(';');
-                    string cookie = headerdata[0];
-                    
-                    PjktCookie = cookie.Substring(8);
-                    Debug.Log("PJKT Cookie: " +PjktCookie);
-                }
-                else Debug.Log("token not there?");
+                    DisplayName = newDisplayName
+                };
+
+                auth.CurrentUser.UpdateUserProfileAsync(profile).ContinueWith(async profileTask =>
+                {
+                    if (profileTask.IsCanceled) {
+                        Debug.LogError("UpdateUserProfileAsync was canceled.");
+                        return;
+                    }
+                    if (profileTask.IsFaulted) {
+                        Debug.LogError("UpdateUserProfileAsync encountered an error: " + task.Exception);
+                        return;
+                    }
+                });
+                displayName = newDisplayName;
+
+                await PJKTLogin();
                 
                 if (caller != null) caller.Repaint();
-                else Debug.Log("Did not repaint");
+                //else Debug.Log("Did not repaint");
             });
         }
 
@@ -264,7 +270,7 @@ namespace PJKT.SDK.Window
         private static void ErrorResponseHandler(string error)
         {
             loginMessage = error;
-            Debug.LogError(error);
+            Debug.LogError("<color=#4557f7>PJKT SDK</color>: " + error);
         }
 
         internal static void ResetLoginMessage()
@@ -275,11 +281,13 @@ namespace PJKT.SDK.Window
         internal static async void Logout()
         {
             loginMessage = "Logged out";
-            
             auth.SignOut();
+            EditorApplication.quitting -= Logout;
+           
             PJKTLogoutMessage message = new PJKTLogoutMessage();
             await PJKTNet.SendMessage(message);
             PjktCookie = "";
+            Debug.Log("<color=#4557f7>PJKT SDK</color>: Logged out");
         }
     }
 }

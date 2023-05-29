@@ -1,13 +1,3 @@
-/////////////////////////////////////////////////////////
-///                                                   ///
-///    Written by Chanoler                            ///
-///    If you are a VRChat employee please hire me    ///
-///    chanolercreations@gmail.com                    ///
-///                                                   ///
-/////////////////////////////////////////////////////////
-
-using UnityEditor;
-
 namespace PJKT.SDK.Window
 {
     //Base class for the various screens in the PJKT SDK

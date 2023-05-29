@@ -1,12 +1,4 @@
-﻿/////////////////////////////////////////////////////////
-///                                                   ///
-///    Written by Chanoler                            ///
-///    If you are a VRChat employee please hire me    ///
-///    chanolercreations@gmail.com                    ///
-///                                                   ///
-/////////////////////////////////////////////////////////
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 namespace PJKT.SDK

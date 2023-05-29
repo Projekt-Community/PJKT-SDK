@@ -1,15 +1,10 @@
-﻿/////////////////////////////////////////////////////////
-///                                                   ///
-///    Written by Chanoler                            ///
-///    If you are a VRChat employee please hire me    ///
-///    chanolercreations@gmail.com                    ///
-///                                                   ///
-/////////////////////////////////////////////////////////
-
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using System.Net.Http;
+using PJKT.SDK.NET.Messages;
+using PJKT.SDK.NET;
 
 namespace PJKT.SDK.Window
 {
@@ -44,7 +39,8 @@ namespace PJKT.SDK.Window
             window.Show();
         }
 
-        private void OnDestroy() {
+        private void OnDestroy() 
+        {
             //Close all screens
             foreach (PJKTWindow screen in openWindows) {
                 screen.OnClose();
@@ -58,6 +54,7 @@ namespace PJKT.SDK.Window
             pjktLogoBackgroundL     = (Texture2D)AssetDatabase.LoadAssetAtPath("Packages/com.pjkt.sdk/Editor/Graphics/logobgL512.png"    , typeof(Texture2D));
             pjktLogoBackgroundR     = (Texture2D)AssetDatabase.LoadAssetAtPath("Packages/com.pjkt.sdk/Editor/Graphics/logobgR512.png"    , typeof(Texture2D));
             pjktLogoBackgroundColor = (Texture2D)AssetDatabase.LoadAssetAtPath("Packages/com.pjkt.sdk/Editor/Graphics/logobgColor512.png", typeof(Texture2D));
+            
         }
 
         private void OnGUI() {
@@ -98,7 +95,7 @@ namespace PJKT.SDK.Window
             {
                 GUILayout.FlexibleSpace();
                 GUILayout.Label("Welcome to the projekt");
-                GUILayout.Label(AuthData.communityName, communityNameStyle);
+                GUILayout.Label(AuthData.displayName, communityNameStyle);
                 GUILayout.FlexibleSpace();
             }
             GUILayout.Space(16);
