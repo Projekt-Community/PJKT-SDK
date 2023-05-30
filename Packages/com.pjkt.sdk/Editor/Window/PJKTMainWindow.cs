@@ -35,7 +35,6 @@ namespace PJKT.SDK.Window
             PJKTMainWindow window = GetWindow<PJKTMainWindow>();
             window.titleContent = new GUIContent("PJKT SDK");
             window.minSize = new Vector2(345, 614);
-
             window.Show();
         }
 
@@ -55,6 +54,7 @@ namespace PJKT.SDK.Window
             pjktLogoBackgroundR     = (Texture2D)AssetDatabase.LoadAssetAtPath("Packages/com.pjkt.sdk/Editor/Graphics/logobgR512.png"    , typeof(Texture2D));
             pjktLogoBackgroundColor = (Texture2D)AssetDatabase.LoadAssetAtPath("Packages/com.pjkt.sdk/Editor/Graphics/logobgColor512.png", typeof(Texture2D));
             
+            if (!AuthData.isAuthorized) AuthData.ClearPjktSession();
         }
 
         private void OnGUI() {

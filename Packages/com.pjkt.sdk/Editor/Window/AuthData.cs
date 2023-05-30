@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -20,7 +21,7 @@ namespace PJKT.SDK.Window
     {
         //Firebase variables
         private const string AppOptionsPath = "Packages/com.pjkt.sdk/Editor/Firebase/google-services.json";
-        private static readonly string cookiePath = Application.persistentDataPath + "/Projekt Community/UnityEditor/";
+        private static readonly string accountDataPath = Application.persistentDataPath + "/Projekt Community/UnityEditor/";
         private readonly static FirebaseApp app; //Readonly
         private readonly static FirebaseAuth auth; //Readonly
         private static FirebaseUser previousUser;
@@ -68,9 +69,7 @@ namespace PJKT.SDK.Window
             }
         }
         //----------End networked variables----------
-        internal static string communityName {
-            get{ return pjktProfile.CommunityName; }
-        }
+
         internal static Texture2D loadProfilePhoto {
             get{
                 Texture2D profilePhoto = new Texture2D(1, 1);
@@ -97,21 +96,35 @@ namespace PJKT.SDK.Window
         }
 
         internal static string PjktCookie = "";
-        
+        internal static string communityName = "";
         internal static string loginMessage { get; private set; } = ""; //Contains the response from the server
 
         //Static constructor, called once on Unity start or recompile
         static AuthData()
         {
             //Firebase initialization
-            string AppOptionsJsonString = System.IO.File.ReadAllText(AppOptionsPath);
+            string AppOptionsJsonString = File.ReadAllText(AppOptionsPath);
             AppOptions appOptions = AppOptions.LoadFromJsonConfig(AppOptionsJsonString);
             app = FirebaseApp.Create(appOptions, "pjkt-sdk");
             auth = FirebaseAuth.GetAuth(app);
             auth.StateChanged += AuthStateChanged;
             AuthStateChanged(null, null);
 
-            if (File.Exists(cookiePath + "cookies.pjkt")) PjktCookie = File.ReadAllText(cookiePath + "cookies.pjkt");
+            if (File.Exists(accountDataPath + "SessionData.pjkt"))
+            {
+                //Debug.Log("founds previous session");
+                string sessionJson = File.ReadAllText(accountDataPath + "SessionData.pjkt");
+                try
+                {
+                    PjktSessionInfo resumeSession = JsonUtility.FromJson<PjktSessionInfo>(sessionJson);
+                    PjktCookie = resumeSession.SessionToken;
+                    communityName = resumeSession.CommunityName;
+                }
+                catch 
+                {
+                    Debug.LogError("<color=#4557f7>PJKT SDK</color>: Error resuming session. Try logging out and back in.");
+                }
+            }
         }
 
         internal static void AuthStateChanged(object sender, System.EventArgs eventArgs) {
@@ -137,7 +150,6 @@ namespace PJKT.SDK.Window
                 }
 
                 previousUser = auth.CurrentUser;
-
             }
         }
 
@@ -159,40 +171,56 @@ namespace PJKT.SDK.Window
                     return;
                 }
 
-                await PJKTLogin();
+                PJKTLoginMessage loginMessage = new PJKTLoginMessage();
+                await PJKTLogin(loginMessage);
                 if (caller != null) caller.Repaint();
                 //else Debug.Log("Did not repaint");
             });
         }
 
-        internal static async Task PJKTLogin()
+        internal static async Task PJKTLogin(PJKTServerMessage message)
         {
             Debug.Log("<color=#4557f7>PJKT SDK</color>: Contacting PJKT services...");
-            
-            PJKTLoginMessage loginMessage = new PJKTLoginMessage();
-            HttpResponseMessage pjktNetResponse = await PJKTNet.SendMessage(loginMessage);
+
+            HttpResponseMessage pjktNetResponse = await PJKTNet.SendMessage(message);
 
             IEnumerable<string> cookieHeaders;
                 
+            //get the session token
             if (pjktNetResponse.Headers.TryGetValues("set-cookie", out  cookieHeaders))
             {
                 string[] headerdata = cookieHeaders.FirstOrDefault().Split(';');
                 string cookie = headerdata[0];
                 
                 PjktCookie = cookie.Substring(8);
-                if (!Directory.Exists(cookiePath)) Directory.CreateDirectory(cookiePath);
-                File.WriteAllText(cookiePath + "cookies.pjkt", PjktCookie);
-               
-                //logout when unity closes
-                EditorApplication.quitting += Logout;
-                
-                Debug.Log("<color=#4557f7>PJKT SDK</color>: Logged in");
             }
             else
             {
                 Debug.LogError("<color=#4557f7>PJKT SDK</color>: Unable to login to PJKT Services, try restarting unity?");
                 auth.SignOut();
+                return;
             }
+            
+            //get the community name
+            string bodyData = await pjktNetResponse.Content.ReadAsStringAsync();
+            try
+            {
+                PjktResponseObject pjktResponse = JsonUtility.FromJson<PjktResponseObject>(bodyData);
+                communityName = pjktResponse.data.communityName;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+            
+            
+            //save session information
+            PjktSessionInfo session = new PjktSessionInfo(communityName, PjktCookie);
+            string savedSEssionData = JsonUtility.ToJson(session);
+            if (!Directory.Exists(accountDataPath)) Directory.CreateDirectory(accountDataPath);
+            File.WriteAllText(accountDataPath + "SessionData.pjkt", savedSEssionData);
+           
+            Debug.Log("<color=#4557f7>PJKT SDK</color>: Logged in");
         }
 
         internal static Task RequestProfileUpdate(EditorWindow caller = null)
@@ -232,8 +260,9 @@ namespace PJKT.SDK.Window
                 {
                     DisplayName = newDisplayName
                 };
-
-                auth.CurrentUser.UpdateUserProfileAsync(profile).ContinueWith(async profileTask =>
+                
+#pragma warning disable CS4014
+                auth.CurrentUser.UpdateUserProfileAsync(profile).ContinueWith( profileTask =>
                 {
                     if (profileTask.IsCanceled) {
                         Debug.LogError("UpdateUserProfileAsync was canceled.");
@@ -244,9 +273,12 @@ namespace PJKT.SDK.Window
                         return;
                     }
                 });
+#pragma warning restore CS4014
+                
                 displayName = newDisplayName;
 
-                await PJKTLogin();
+                PJKTAccountCreationMessage accountCreationMessage = new PJKTAccountCreationMessage(newGroupName, token);
+                await PJKTLogin(accountCreationMessage);
                 
                 if (caller != null) caller.Repaint();
                 //else Debug.Log("Did not repaint");
@@ -282,12 +314,35 @@ namespace PJKT.SDK.Window
         {
             loginMessage = "Logged out";
             auth.SignOut();
-            EditorApplication.quitting -= Logout;
-           
             PJKTLogoutMessage message = new PJKTLogoutMessage();
             await PJKTNet.SendMessage(message);
-            PjktCookie = "";
+            ClearPjktSession();
+
             Debug.Log("<color=#4557f7>PJKT SDK</color>: Logged out");
+        }
+
+        internal static void ClearPjktSession()
+        {
+            //wipe session data
+            if (File.Exists(accountDataPath + "SessionData.pjkt"))
+            {
+                File.Delete(accountDataPath + "SessionData.pjkt");
+            }
+            PjktCookie = "";
+            communityName = "";
+        }
+    }
+
+    [Serializable]
+    internal class PjktSessionInfo
+    {
+        public string CommunityName;
+        public string SessionToken;
+
+        public PjktSessionInfo(string communityName, string sessionToken)
+        {
+            CommunityName = communityName;
+            SessionToken = sessionToken;
         }
     }
 }

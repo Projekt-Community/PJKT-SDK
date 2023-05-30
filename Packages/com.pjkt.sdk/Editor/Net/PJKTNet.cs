@@ -28,15 +28,17 @@ namespace PJKT.SDK.NET
             string messageJson = JsonUtility.ToJson(message, true);
             StringContent data = new StringContent(messageJson, Encoding.UTF8, "application/json");
             Uri endpoint = new Uri(url + message.endpoint);
-            HttpResponseMessage response = new HttpResponseMessage();
+            HttpResponseMessage response;
             CookieContainer cookies = new CookieContainer();
             HttpClientHandler handler = new HttpClientHandler() { CookieContainer = cookies };
             using (HttpClient client = new HttpClient(handler))
             {
-                HttpRequestMessage request = new HttpRequestMessage(message.method, endpoint);
-                request.Content = data;
-                cookies.Add(endpoint, new Cookie("session", AuthData.PjktCookie));
-                response = await client.SendAsync(request);
+                using (HttpRequestMessage request = new HttpRequestMessage(message.method, endpoint))
+                {
+                    request.Content = data;
+                    cookies.Add(endpoint, new Cookie("session", AuthData.PjktCookie));
+                    response = await client.SendAsync(request);
+                }
             }
             return response;
         }
@@ -60,7 +62,6 @@ namespace PJKT.SDK.NET
                     }
                 }
             }
-                
             return responseData;
         }
 
