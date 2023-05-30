@@ -56,7 +56,7 @@ namespace PJKT.SDK
         public string CanvasString;
         public BoothPerformanceRanking CanvasRanking = BoothPerformanceRanking.NotApplicable;
         
-        public List<TextMeshProUGUI> TMProTexts = new List<TextMeshProUGUI>();
+        public List<TMP_Text> TMProTexts = new List<TMP_Text>();
         public string TMPString;
         public BoothPerformanceRanking TextRanking = BoothPerformanceRanking.NotApplicable;
         
