@@ -257,7 +257,7 @@ namespace PJKT.SDK
             idnum++;
             boothTreeItems.Add(textCount);
             
-            foreach (TextMeshProUGUI text in BoothValidator.Report.TMProTexts)
+            foreach (TMP_Text text in BoothValidator.Report.TMProTexts)
             {
                 BoothTreeItem tmp = new BoothTreeItem(text)
                 {

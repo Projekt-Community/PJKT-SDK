@@ -50,7 +50,7 @@ namespace PJKT.SDK.Window
             Report.Pickups = booth.gameObject.GetComponentsInChildren<VRCPickup>(true).ToList();
             Report.Portals = booth.gameObject.GetComponentsInChildren<VRCPortalMarker>(true).ToList();
             Report.CanvasComponents = booth.gameObject.GetComponentsInChildren<Canvas>(true).ToList();
-            Report.TMProTexts = booth.gameObject.GetComponentsInChildren<TextMeshProUGUI>(true).ToList();
+            Report.TMProTexts = booth.gameObject.GetComponentsInChildren<TMP_Text>(true).ToList(); 
             Report.UdonBehaviours = booth.gameObject.GetComponentsInChildren<UdonBehaviour>(true).ToList();
             Report.Renderers = booth.gameObject.GetComponentsInChildren<Renderer>(true).ToList();
             Report.Pickups = booth.gameObject.GetComponentsInChildren<VRCPickup>(true).ToList();
