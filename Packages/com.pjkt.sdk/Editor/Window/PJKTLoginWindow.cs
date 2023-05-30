@@ -59,7 +59,7 @@ namespace PJKT.SDK.Window
                         GUILayout.Label("Display Name");
                         newDisplayName = GUILayout.TextField(newDisplayName);
                         GUILayout.Space(8);
-                        GUILayout.Label("Group Name");
+                        GUILayout.Label("Community Name");
                         newGroupName = GUILayout.TextField(newGroupName);
 
                         GUILayout.Space(8);

@@ -7,6 +7,7 @@ using PJKT.SDK.NET;
 using PJKT.SDK.NET.Messages;
 using UnityEngine;
 using UnityEditor;
+using Directory = UnityEngine.Windows.Directory;
 
 
 namespace PJKT.SDK
@@ -88,26 +89,22 @@ namespace PJKT.SDK
                 //Upload the UnityPackage
                 byte[] fileBytes = File.ReadAllBytes(packagePath);
                 //TODO: Photo
-                
+
                 PJKTUploadMessage uploadMessage = new PJKTUploadMessage(fileBytes, new Texture2D(4, 4).EncodeToPNG());
                 
                 HttpResponseMessage response;
                 response = await PJKTNet.SendMessage(uploadMessage);
                 
                 //check if there is an issue with response
-                string stream;
-                stream = await response.Content.ReadAsStringAsync();
-
-                string[] responseMessages = stream.Split(',');
-                
-                //Debug.Log(stream);
-                if (responseMessages[0].Contains("error"))
+                string responseJson = await response.Content.ReadAsStringAsync();
+                //Debug.Log(responseJson);
+                PjktResponseObject responseObject = JsonUtility.FromJson<PjktResponseObject>(responseJson);
+                if (responseObject.error)
                 {
                     EditorUtility.DisplayDialog("Booth Upload Error", "Couldn't upload booth to server :(", "Oh ok");
-                    Debug.LogError("<color=#4557f7>PJKT SDK</color>: Error uploading booth. " + stream);
+                    Debug.LogError("<color=#4557f7>PJKT SDK</color>: Error uploading booth. " + responseObject.message);
                     return false;
                 }
-
                 return true;
             }
             catch (Exception e)
@@ -123,11 +120,16 @@ namespace PJKT.SDK
             //Delete the temporary files and folders
             Debug.Log("<color=#4557f7>PJKT SDK</color>: Cleaning up temporary files");
             if (File.Exists(prefabPath)) File.Delete(prefabPath);
-            if (File.Exists(prefabPath + ".meta")) File.Delete(prefabPath + ".meta");
+            string prefabFolderPath = prefabPath.TrimEnd('.','p','r','e','f','a','b');
+            if (File.Exists(prefabFolderPath + ".meta")) File.Delete(prefabFolderPath + ".meta");
+            
             if (File.Exists(packagePath)) File.Delete(packagePath);
-            if (File.Exists(packagePath + ".meta")) File.Delete(packagePath + ".meta");
-            //if (Directory.Exists(Path.GetDirectoryName(prefabPath))) Directory.Delete(Path.GetDirectoryName(prefabPath));
-            //if (Directory.Exists(Path.GetDirectoryName(prefabPath)  + ".meta")) Directory.Delete(Path.GetDirectoryName(prefabPath) + ".meta");
+            string packagefolderPath = packagePath.TrimEnd('.','u','n','i','t','y','p', 'a', 'c', 'k', 'a', 'g', 'e');
+            if (File.Exists(packagefolderPath + ".meta")) File.Delete(packagefolderPath + ".meta");
+            
+            if (Directory.Exists(Path.GetDirectoryName(prefabFolderPath))) Directory.Delete(Path.GetDirectoryName(prefabFolderPath));
+            if (Directory.Exists(Path.GetDirectoryName(prefabFolderPath)  + ".meta")) Directory.Delete(Path.GetDirectoryName(prefabFolderPath) + ".meta");
+            if (UnityEngine.Windows.File.Exists(defaultPrefabPath + AuthData.communityName +".meta")) File.Delete(defaultPrefabPath + AuthData.communityName +".meta");
 
             prefabPath = "";
             packagePath = "";

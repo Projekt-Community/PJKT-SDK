@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using PJKT.SDK.Window;
 
@@ -153,5 +154,19 @@ namespace PJKT.SDK.NET.Messages
         public byte[] ProfilePhotoBytes { get { return Convert.FromBase64String(ProfilePhoto); } }
         //Valid Discord URL
         public readonly string DiscordURL;
+    }
+
+    [Serializable]
+    internal class PjktResponseObject
+    {
+        public bool error;
+        public string message;
+        public PjktResponseData data;
+    }
+    [Serializable]
+    internal class PjktResponseData
+    {
+        public string communityName;
+        public string errorMessage;
     }
 }
