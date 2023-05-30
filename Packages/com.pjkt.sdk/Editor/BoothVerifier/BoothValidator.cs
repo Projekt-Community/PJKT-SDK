@@ -43,18 +43,18 @@ namespace PJKT.SDK.Window
             Report = new BoothValidationReport();
             
             // fetch all the relevant components
-            Report.Animators = booth.gameObject.GetComponentsInChildren<Animator>().ToList();
-            Report.Meshes = booth.gameObject.GetComponentsInChildren<MeshRenderer>().ToList();
-            Report.SkinnedMeshes = booth.gameObject.GetComponentsInChildren<SkinnedMeshRenderer>().ToList();
-            Report.Particles = booth.gameObject.GetComponentsInChildren<ParticleSystem>().ToList();
-            Report.Pickups = booth.gameObject.GetComponentsInChildren<VRCPickup>().ToList();
-            Report.Portals = booth.gameObject.GetComponentsInChildren<VRCPortalMarker>().ToList();
-            Report.CanvasComponents = booth.gameObject.GetComponentsInChildren<Canvas>().ToList();
-            Report.TMProTexts = booth.gameObject.GetComponentsInChildren<TextMeshProUGUI>().ToList();
-            Report.UdonBehaviours = booth.gameObject.GetComponentsInChildren<UdonBehaviour>().ToList();
-            Report.Renderers = booth.gameObject.GetComponentsInChildren<Renderer>().ToList();
-            Report.Pickups = booth.gameObject.GetComponentsInChildren<VRCPickup>().ToList();
-            Report.AvatarPeds = booth.gameObject.GetComponentsInChildren<VRCAvatarPedestal>().ToList();
+            Report.Animators = booth.gameObject.GetComponentsInChildren<Animator>(true).ToList();
+            Report.Meshes = booth.gameObject.GetComponentsInChildren<MeshRenderer>(true).ToList();
+            Report.SkinnedMeshes = booth.gameObject.GetComponentsInChildren<SkinnedMeshRenderer>(true).ToList();
+            Report.Particles = booth.gameObject.GetComponentsInChildren<ParticleSystem>(true).ToList();
+            Report.Pickups = booth.gameObject.GetComponentsInChildren<VRCPickup>(true).ToList();
+            Report.Portals = booth.gameObject.GetComponentsInChildren<VRCPortalMarker>(true).ToList();
+            Report.CanvasComponents = booth.gameObject.GetComponentsInChildren<Canvas>(true).ToList();
+            Report.TMProTexts = booth.gameObject.GetComponentsInChildren<TextMeshProUGUI>(true).ToList();
+            Report.UdonBehaviours = booth.gameObject.GetComponentsInChildren<UdonBehaviour>(true).ToList();
+            Report.Renderers = booth.gameObject.GetComponentsInChildren<Renderer>(true).ToList();
+            Report.Pickups = booth.gameObject.GetComponentsInChildren<VRCPickup>(true).ToList();
+            Report.AvatarPeds = booth.gameObject.GetComponentsInChildren<VRCAvatarPedestal>(true).ToList();
             
             //get relevent files for components
             Report.Materials = FetchAllMaterials(Report.Renderers);
@@ -243,7 +243,7 @@ namespace PJKT.SDK.Window
             foreach (Renderer renderer in Report.Renderers)
             {
                 //Check every mesh
-                MeshFilter[] meshFilters = renderer.GetComponentsInChildren<MeshFilter>();
+                MeshFilter[] meshFilters = renderer.GetComponentsInChildren<MeshFilter>(true);
                 foreach (MeshFilter meshFilter in meshFilters)
                 {
                     //Add the number of triangles
