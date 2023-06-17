@@ -22,6 +22,13 @@ namespace PJKT.SDK
         
         public static async Task UploadBoothAsync(BoothDescriptor boothDescriptor)
         {
+            //veryfy were logged in 
+            if (!AuthData.isAuthorized || AuthData.PjktCookie == "")
+            {
+                EditorUtility.DisplayDialog("Session expired", "Before uploading you need to login again." , "Ok");
+                AuthData.Logout();
+            }
+            
             bool success = false;
             if (boothDescriptor == null)
             {
@@ -75,7 +82,7 @@ namespace PJKT.SDK
             }
             catch (Exception e)
             {
-                EditorUtility.DisplayDialog("Booth Upload Error", "Couldn't create booth package :(", "Oh ok");
+                EditorUtility.DisplayDialog("Booth Upload Error", "Couldn't create booth package :(" + '\n' + e, "Oh ok");
                 Debug.LogError("<color=#4557f7>PJKT SDK</color>: Error creating booth package. " + e);
                 return false;
             }
@@ -101,7 +108,7 @@ namespace PJKT.SDK
                 PjktResponseObject responseObject = JsonUtility.FromJson<PjktResponseObject>(responseJson);
                 if (responseObject.error)
                 {
-                    EditorUtility.DisplayDialog("Booth Upload Error", "Couldn't upload booth to server :(", "Oh ok");
+                    EditorUtility.DisplayDialog("Booth Upload Error", "Couldn't upload booth to server :("  + '\n' + responseObject.message, "Oh ok");
                     Debug.LogError("<color=#4557f7>PJKT SDK</color>: Error uploading booth. " + responseObject.message);
                     return false;
                 }
@@ -109,7 +116,7 @@ namespace PJKT.SDK
             }
             catch (Exception e)
             {
-                EditorUtility.DisplayDialog("Booth Upload Error", "Couldn't upload booth to server :(", "Oh ok");
+                EditorUtility.DisplayDialog("Booth Upload Error", "Couldn't upload booth to server :(" + '\n' + e, "Oh ok");
                 Debug.LogError("<color=#4557f7>PJKT SDK</color>: Error uploading booth. " + e);
                 return false;
             }
