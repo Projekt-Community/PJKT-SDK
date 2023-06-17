@@ -161,6 +161,7 @@ namespace PJKT.SDK.Window
                     foreach (UnityEditor.Animations.ChildAnimatorState state in layer.stateMachine.states)
                     {
                         //Add the animation clip
+                        if (state.state.motion == null) continue;
                         animations.Add(state.state.motion as AnimationClip);
                     }
                 }
