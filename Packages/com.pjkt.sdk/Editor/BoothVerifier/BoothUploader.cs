@@ -108,7 +108,19 @@ namespace PJKT.SDK
                 PjktResponseObject responseObject = JsonUtility.FromJson<PjktResponseObject>(responseJson);
                 if (responseObject.error)
                 {
-                    EditorUtility.DisplayDialog("Booth Upload Error", "Couldn't upload booth to server :("  + '\n' + responseObject.message, "Oh ok");
+                    //handle special errors
+                    switch (responseObject.message)
+                    {
+                        case "Unauthorized! Login required.":
+                            EditorUtility.DisplayDialog("Session expired", "Before uploading you need to login again." , "Ok");
+                            AuthData.Logout();
+                            break;
+                        
+                        default:
+                            EditorUtility.DisplayDialog("Booth Upload Error", "Couldn't upload booth to server :("  + '\n' + responseObject.message, "Oh ok");
+                            break;
+                    }
+                    
                     Debug.LogError("<color=#4557f7>PJKT SDK</color>: Error uploading booth. " + responseObject.message);
                     return false;
                 }
