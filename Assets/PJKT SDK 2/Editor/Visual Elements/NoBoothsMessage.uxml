@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 0; background-color: rgb(46, 46, 46); border-top-left-radius: 5px; border-bottom-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; justify-content: center; align-self: stretch; border-bottom-color: rgb(231, 76, 42); border-bottom-width: 5px;">
+        <ui:Label tabindex="-1" text="No booths found in the scene.&#10;Add a Booth Descriptor to an object first." parse-escape-sequences="true" display-tooltip-when-elided="true" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; -unity-text-align: upper-center; -unity-font-style: bold; color: rgb(255, 255, 255); font-size: 16px; overflow: hidden; white-space: normal;" />
+    </ui:VisualElement>
+</ui:UXML>

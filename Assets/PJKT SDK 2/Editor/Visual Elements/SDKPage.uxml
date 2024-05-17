@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="SDK_Page" style="flex-grow: 1;">
+        <ui:VisualElement name="Top_Area" style="flex-grow: 1; align-self: stretch; flex-shrink: 0;" />
+        <ui:ScrollView name="PageScroll" horizontal-scroller-visibility="Hidden" style="margin-top: 10px;" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="Requirement_Category" style="flex-grow: 1; flex-direction: row;">
+        <ui:VisualElement name="Performance_Icon" style="flex-grow: 0; background-image: url(&apos;project://database/Assets/UnityDefaultRuntimeTheme.tss?fileID=8228938214290033325&amp;guid=29de058a01f9ea84398480be4ce111ff&amp;type=3#console.erroricon&apos;); width: 22px; height: 22px; flex-shrink: 0;" />
+        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Requirement_Text" style="margin-left: 4px; margin-right: 4px; margin-top: 4px; margin-bottom: 4px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; -unity-text-align: middle-left; height: 14px; flex-grow: 1; color: rgb(255, 255, 255); -unity-font-style: bold;" />
+    </ui:VisualElement>
+</ui:UXML>

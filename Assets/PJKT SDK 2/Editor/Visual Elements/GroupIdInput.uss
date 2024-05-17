@@ -1,0 +1,40 @@
+#Group_ID_Input Label {
+    margin-left: 2px;
+    margin-right: 4px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    padding-left: 1px;
+    padding-right: 2px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    width: auto;
+    -unity-text-align: middle-left;
+    flex-grow: 0;
+    color: rgb(255, 255, 255);
+}
+
+#unity-text-input {
+    height: 22px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-left-color: rgb(18, 18, 18);
+    border-right-color: rgb(18, 18, 18);
+    border-top-color: rgb(18, 18, 18);
+    border-bottom-color: rgb(18, 18, 18);
+    background-color: rgb(41, 41, 41);
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    flex-grow: 1;
+    justify-content: flex-start;
+    align-self: auto;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-left;
+}
