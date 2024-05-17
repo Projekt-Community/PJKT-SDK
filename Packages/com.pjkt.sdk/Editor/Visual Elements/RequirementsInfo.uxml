@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 0; background-color: rgb(46, 46, 46); border-top-left-radius: 5px; border-bottom-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; overflow: hidden; flex-direction: row; justify-content: center; margin-left: 4px; margin-right: 4px; margin-top: 4px; margin-bottom: 4px; border-bottom-color: rgb(26, 123, 152); border-bottom-width: 5px; min-width: 224px; flex-shrink: 0;">
+        <ui:VisualElement style="flex-grow: 1; flex-shrink: 0; width: 49%;">
+            <ui:Label tabindex="-1" text="Requirements for:&#10;Event name" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Event_Name" style="color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: upper-center; overflow: hidden; min-height: 48px;" />
+            <ui:Label tabindex="-1" text="Booth requirements will appear here once you select an event." parse-escape-sequences="true" display-tooltip-when-elided="true" name="Event_Requirements" style="color: rgb(255, 255, 255); padding-left: 4px; padding-right: 4px; padding-top: 4px; padding-bottom: 4px; overflow: visible; flex-wrap: nowrap; white-space: normal;" />
+        </ui:VisualElement>
+        <ui:VisualElement style="flex-grow: 0; width: 5px; background-color: rgb(229, 51, 128); flex-shrink: 0; border-top-left-radius: 3px; border-bottom-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; margin-left: 0; margin-right: 0; margin-top: 5px; margin-bottom: 5px;" />
+        <ui:VisualElement style="flex-grow: 1; flex-shrink: 0; width: 49%;">
+            <ui:Label tabindex="-1" text="Your booth" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Booth_Name" style="color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: upper-center; overflow: hidden; min-height: 48px;" />
+            <ui:Label tabindex="-1" text="Your booth&apos;s stats will show here." parse-escape-sequences="true" display-tooltip-when-elided="true" name="Booth_Info" style="color: rgb(255, 255, 255); padding-left: 4px; padding-right: 4px; padding-top: 4px; padding-bottom: 4px; overflow: visible; flex-wrap: nowrap; white-space: normal;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
