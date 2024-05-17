@@ -8,7 +8,7 @@ namespace PJKT.SDK2
     public class Notification : VisualElement
     {
         public new class UxmlFactory : UxmlFactory<Notification> { }
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/Notification.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/Notification.uxml";
         
         private VisualElement container => this.Q<VisualElement>("Notification");
         private VisualElement icon => this.Q<VisualElement>("Icon");

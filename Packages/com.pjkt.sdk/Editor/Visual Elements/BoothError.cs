@@ -8,7 +8,7 @@ namespace PJKT.SDK2
     {
         public new class UxmlFactory : UxmlFactory<BoothError> { }
         public BoothError() { }
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/BoothError.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/BoothError.uxml";
         
         private VisualElement errorContainer => this.Q<VisualElement>("Error_Message");
         private VisualElement errorIcon => this.Q<VisualElement>("Icon");

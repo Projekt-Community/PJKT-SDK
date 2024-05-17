@@ -13,7 +13,7 @@ namespace PJKT.SDK2
     public class RegisterForm : VisualElement
     {
         public new class UxmlFactory : UxmlFactory<RegisterForm> { }
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/RegisterForm.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/RegisterForm.uxml";
         
         private Button registerButton => this.Q<Button>("RegisterButton");
         private TextField userNameField => this.Query<TextField>("PjktTextInput").AtIndex(0);

@@ -12,7 +12,7 @@ namespace PJKT.SDK2
         {
         }
 
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/SettingsPanel.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/SettingsPanel.uxml";
 
         private TextField inviteCodeInput => this.Q<TextField>("PjktTextInput");
         private Button JoinCommunityButton => this.Q<Button>("JoinCommunityButton");

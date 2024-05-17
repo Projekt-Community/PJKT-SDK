@@ -11,7 +11,7 @@ namespace PJKT.SDK2
     {
         public new class UxmlFactory : UxmlFactory<LoginForm> { }
 
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/LoginPage.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/LoginPage.uxml";
         
         private Button loginButton => this.Q<Button>("LoginButton");
         private Button registerButton => this.Q<Button>("RegisterButton");

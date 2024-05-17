@@ -7,7 +7,7 @@ namespace PJKT.SDK2
     public class RequirementsInfo : VisualElement
     {
         public new class UxmlFactory : UxmlFactory<RequirementsInfo> { }
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/RequirementsInfo.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/RequirementsInfo.uxml";
         public RequirementsInfo() { }
         public RequirementsInfo(BoothStats[] boothstats)
         {

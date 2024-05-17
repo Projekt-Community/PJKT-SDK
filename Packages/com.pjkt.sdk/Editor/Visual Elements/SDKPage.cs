@@ -7,7 +7,7 @@ namespace PJKT.SDK2
     {
         public new class UxmlFactory : UxmlFactory<SDKPage> { }
 
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/SDKPage.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/SDKPage.uxml";
         protected ScrollView scrollView => this.Q<ScrollView>("PageScroll");
         protected VisualElement topArea => this.Q<VisualElement>("Top_Area");
         

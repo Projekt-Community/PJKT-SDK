@@ -46,8 +46,8 @@ namespace PJKT.SDK2.NET
         }
         
         //Firebase variables
-        private const string AppOptionsPath = "Assets/PJKT SDK 2/Editor/Firebase/google-services.json";
-        private const string devAppOptionsPath = "Assets/PJKT SDK 2/Editor/Firebase/google-services_dev.json";
+        private const string AppOptionsPath = "Packages/com.pjkt.sdk/Editor/Firebase/google-services.json";
+        private const string devAppOptionsPath = "Packages/com.pjkt.sdk/Editor/Firebase/google-services_dev.json";
         private static readonly string accountDataPath = Application.persistentDataPath + "/Projekt Community/UnityEditor/";
         private readonly static FirebaseApp app; //Readonly
         private readonly static FirebaseAuth auth; //Readonly

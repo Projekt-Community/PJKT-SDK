@@ -9,7 +9,7 @@ namespace PJKT.SDK2
     public class RequirementCategory : VisualElement
     {
         public new class UxmlFactory : UxmlFactory<RequirementCategory> { }
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/RequirementCategory.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/RequirementCategory.uxml";
         public RequirementCategory() { }
         
         private VisualElement performanceIcon => this.Q<VisualElement>("Performance_Icon");

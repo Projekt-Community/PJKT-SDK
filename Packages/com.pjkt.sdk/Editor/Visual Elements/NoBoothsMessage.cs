@@ -6,7 +6,7 @@ namespace PJKT.SDK2
     public class NoBoothsMessage : VisualElement
     {
         public class uxmlFactory : UxmlFactory<NoBoothsMessage> { }
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/NoBoothsMessage.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/NoBoothsMessage.uxml";
 
         public NoBoothsMessage()
         {

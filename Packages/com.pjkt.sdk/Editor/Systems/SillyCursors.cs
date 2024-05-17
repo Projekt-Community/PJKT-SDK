@@ -8,8 +8,8 @@ namespace PJKT.SDK2.Extras
     {
         private static readonly string[] cursorLocations = new string[]
         {
-            "Assets/PJKT SDK 2/Editor/Graphics/scimmy.png",
-            "Assets/PJKT SDK 2/Editor/Graphics/lil Guantlet.png"
+            "Packages/com.pjkt.sdk/Editor/Graphics/scimmy.png",
+            "Packages/com.pjkt.sdk/Editor/Graphics/lil Guantlet.png"
         };
         public static Cursor GetSillyCursor()
         {

@@ -9,7 +9,7 @@ namespace PJKT.SDK2
         public new class UxmlFactory : UxmlFactory<InfoPanel> { }
         public InfoPanel() { }
     
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/InfoPanel.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/InfoPanel.uxml";
         private Button SelectButton => this.Q<Button>("SelectObjectButton");
         private Label InfoLabel => this.Q<Label>("InfoText");
         private VisualElement typeIcon => this.Q<VisualElement>("TypeIcon");

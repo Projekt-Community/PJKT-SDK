@@ -8,7 +8,7 @@ namespace PJKT.SDK2
     [CustomEditor(typeof(BoothDescriptor))]
     public class PJKTBoothDescriptorEditor : Editor
     {
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/BoothDescriptor.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/BoothDescriptor.uxml";
 
         private Label boothName;
         private BoothDescriptor descriptor;

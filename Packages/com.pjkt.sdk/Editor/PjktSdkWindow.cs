@@ -28,7 +28,7 @@ namespace PJKT.SDK2
         SdkTab _selectedTab;
         private async void OnEnable()
         {
-            VisualTreeAsset asset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/PJKT SDK 2/Editor/Visual Elements/PjktSdk2xml.uxml");
+            VisualTreeAsset asset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/com.pjkt.sdk/Editor/Visual Elements/PjktSdk2xml.uxml");
             var clone = asset.Instantiate();
             clone.style.flexGrow = 1;
             rootVisualElement.Add(clone);

@@ -8,7 +8,7 @@ namespace PJKT.SDK2
     {
         public new class UxmlFactory : UxmlFactory<SdkTab> { }
         public SdkTab() { }
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/Tab.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/Tab.uxml";
         private VisualElement tabIcon => this.Q<VisualElement>("TabIcon");
         Button tabButton => this.Q<Button>("TabButton");
         private Color tabColor;

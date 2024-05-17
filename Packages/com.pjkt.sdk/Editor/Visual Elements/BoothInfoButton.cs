@@ -10,7 +10,7 @@ namespace PJKT.SDK2
     {
         public new class UxmlFactory : UxmlFactory<BoothInfoButton> { }
         public BoothInfoButton() { }
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/BoothInfoButton.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/BoothInfoButton.uxml";
         
         private Label boothName => this.Q<Label>("Booth_Name");
         private Label boothDetails => this.Q<Label>("Information");

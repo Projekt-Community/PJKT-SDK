@@ -9,7 +9,7 @@ namespace PJKT.SDK2
     public class EventButton : VisualElement
     {
         public new class UxmlFactory : UxmlFactory<EventButton> { }
-        private const string uxmlPath = "Assets/PJKT SDK 2/Editor/Visual Elements/EventButton.uxml";
+        private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/EventButton.uxml";
         public EventButton() { }
         
         public Project Projekt { get; private set; }
