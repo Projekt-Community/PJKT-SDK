@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using TMPro;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -51,7 +50,7 @@ namespace PJKT.SDK2
                 PjktSdkWindow.Notify("No booth requirements found. Have you selected an event?", BoothErrorType.Warning);
             }
 
-            Debug.Log("<color=#FFBB00><b>PJKT SDK:</b></color> Generating booth report...");
+            //Debug.Log("<color=#FFBB00><b>PJKT SDK:</b></color> Generating booth report...");
             // fetch all the relevant components
             List<Animator> Animators = booth.gameObject.GetComponentsInChildren<Animator>(true).ToList();
             List<MeshFilter> meshFilters = booth.gameObject.GetComponentsInChildren<MeshFilter>(true).ToList();
@@ -431,13 +430,27 @@ namespace PJKT.SDK2
                     continue;
                 }
                 
-                //check if its in the vrchat folder
+                
                 string assetpath = AssetDatabase.GetAssetPath(behaviour.programSource);
-
-                bool allowed = true;
-                if (!assetpath.StartsWith("Packages/com.vrchat.worlds/Samples/UdonExampleScene/UdonProgramSources"))
+                bool allowed = false;
+                
+                //check if its an allowed script from VRChat
+                string[] vrcAssets = new string[]
                 {
-                    allowed = Requirements.UdonWhitelist.Contains(assetpath);
+                    "Packages/com.vrchat.worlds/Samples/UdonExampleScene/UdonProgramSources/AvatarPedestal Program.asset"
+                };
+                
+                
+                List<string> allowedAssetPaths = new List<string>(Requirements.UdonWhitelist);
+                allowedAssetPaths.AddRange(vrcAssets);
+
+                foreach (string path in allowedAssetPaths)
+                {
+                    if (assetpath == path)
+                    {
+                        allowed = true;
+                        break;
+                    }
                 }
                 
                 if (!allowed) disallowedScripts = true;
