@@ -31,20 +31,6 @@ namespace PJKT.SDK2.NET
         //handles notifying of login status
         public static event EventHandler OnLoginStatusChanged = delegate {  };
         
-        [MenuItem("PJKT/SkipLogin")]
-        public static void SkipLogin()
-        {
-            IsLoggedIn = true;
-        }
-        
-        [MenuItem("PJKT/ManualLogin")]
-        public static void ManualLogin()
-        {
-#pragma warning disable 4014
-            Login("karet@projektcommunity.com", "pokeball64");
-#pragma warning restore 4014
-        }
-        
         //Firebase variables
         private const string AppOptionsPath = "Packages/com.pjkt.sdk/Editor/Firebase/google-services.json";
         private const string devAppOptionsPath = "Packages/com.pjkt.sdk/Editor/Firebase/google-services_dev.json";
@@ -57,12 +43,6 @@ namespace PJKT.SDK2.NET
         //internal static string communityName = "";
         internal static bool isAuthorized { get { return auth != null && auth.CurrentUser != null; } }
         internal static string token { get; private set; }
-        
-        [MenuItem("PJKT/tokens")]
-        public static void GetToken()
-        {
-            Debug.Log($"Auth: {isAuthorized} \n fire base token: {token} \n pjkttoken: {PjktCookie}");
-        }
         
         static Authentication()
         {
@@ -104,7 +84,7 @@ namespace PJKT.SDK2.NET
                 
             IsLoggedIn = true;
         }
-        [MenuItem("PJKT/Get user info")]
+
         internal static async Task<bool> GetActiveUserInfo()
         {
             //Debug.Log($"Getting user info. PJKT Cookie: {PjktCookie}");
@@ -222,7 +202,6 @@ namespace PJKT.SDK2.NET
             IsLoggedIn = true;
         }
 
-        [MenuItem("PJKT/Logout")]
         public static async void Logout()
         {
             auth.SignOut();

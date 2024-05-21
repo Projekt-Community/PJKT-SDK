@@ -75,56 +75,56 @@ namespace PJKT.SDK2
             _tabsScrollView.Add(eventsTab);
             
             //Meshes Tab
-            var meshTab = new SdkTab(AssetPreview.GetMiniTypeThumbnail(typeof(Mesh)), PjktGraphics.GraphicColors["Mesh"], SDKPageType.Meshes);
+            var meshTab = new SdkTab(PjktGraphics.GetGraphic("Mesh"), PjktGraphics.GraphicColors["Mesh"], SDKPageType.Meshes);
             Button meshTabButton = meshTab.Q<Button>("TabButton");
             meshTabButton.tooltip = "Meshes";
             meshTabButton.RegisterCallback<ClickEvent>(OnTabClick);
             _tabsScrollView.Add(meshTab);
             
             //Materials Tab
-            var materialTab = new SdkTab(AssetPreview.GetMiniTypeThumbnail(typeof(Material)), PjktGraphics.GraphicColors["Material"], SDKPageType.Materials);
+            var materialTab = new SdkTab(PjktGraphics.GetGraphic("Material"), PjktGraphics.GraphicColors["Material"], SDKPageType.Materials);
             Button materialTabButton = materialTab.Q<Button>("TabButton");
             materialTabButton.tooltip = "Materials";
             materialTabButton.RegisterCallback<ClickEvent>(OnTabClick);
             _tabsScrollView.Add(materialTab);
             
             //Textures Tab
-            var textureTab = new SdkTab(AssetPreview.GetMiniTypeThumbnail(typeof(Texture2D)), PjktGraphics.GraphicColors["Texture"], SDKPageType.Textures);
+            var textureTab = new SdkTab(PjktGraphics.GetGraphic("Texture"), PjktGraphics.GraphicColors["Texture"], SDKPageType.Textures);
             Button textureTabButton = textureTab.Q<Button>("TabButton");
             textureTabButton.tooltip = "Textures";
             textureTabButton.RegisterCallback<ClickEvent>(OnTabClick);
             _tabsScrollView.Add(textureTab);
             
             //Animations Tab
-            var animationTab = new SdkTab(AssetPreview.GetMiniTypeThumbnail(typeof(Animator)), PjktGraphics.GraphicColors["Animation"], SDKPageType.Animations);
+            var animationTab = new SdkTab(PjktGraphics.GetGraphic("Animation"), PjktGraphics.GraphicColors["Animation"], SDKPageType.Animations);
             Button animationTabButton = animationTab.Q<Button>("TabButton");
             animationTabButton.tooltip = "Animations";
             animationTabButton.RegisterCallback<ClickEvent>(OnTabClick);
             _tabsScrollView.Add(animationTab);
             
             //Text Tab
-            var textTab = new SdkTab(AssetPreview.GetMiniTypeThumbnail(typeof(TextMesh)), PjktGraphics.GraphicColors["Text"], SDKPageType.Text);
+            var textTab = new SdkTab(PjktGraphics.GetGraphic("Text"), PjktGraphics.GraphicColors["Text"], SDKPageType.Text);
             Button textTabButton = textTab.Q<Button>("TabButton");
             textTabButton.tooltip = "Text";
             textTabButton.RegisterCallback<ClickEvent>(OnTabClick);
             _tabsScrollView.Add(textTab);
             
             //Particles Tab
-            var particlesTab = new SdkTab(AssetPreview.GetMiniTypeThumbnail(typeof(ParticleSystem)), PjktGraphics.GraphicColors["Particles"], SDKPageType.Particles);
+            var particlesTab = new SdkTab(PjktGraphics.GetGraphic("Particles"), PjktGraphics.GraphicColors["Particles"], SDKPageType.Particles);
             Button particlesTabButton = particlesTab.Q<Button>("TabButton");
             particlesTabButton.tooltip = "Particles";
             particlesTabButton.RegisterCallback<ClickEvent>(OnTabClick);
             _tabsScrollView.Add(particlesTab);
             
             //SDK Components Tab
-            var sdkCompTab = new SdkTab(AssetPreview.GetMiniTypeThumbnail(typeof(Avatar)), PjktGraphics.GraphicColors["Avatar"], SDKPageType.VRCComponents);
+            var sdkCompTab = new SdkTab(PjktGraphics.GetGraphic("VRC"), PjktGraphics.GraphicColors["Avatar"], SDKPageType.VRCComponents);
             Button sdkCompTabButton = sdkCompTab.Q<Button>("TabButton");
             sdkCompTabButton.tooltip = "VRC Components";
             sdkCompTabButton.RegisterCallback<ClickEvent>(OnTabClick);
             _tabsScrollView.Add(sdkCompTab);
             
             //Settings Tab
-            var settingsTab = new SdkTab(SDK2.PjktGraphics.GetGraphic("Settings"), PjktGraphics.GraphicColors["Settings"], SDKPageType.Settings);
+            var settingsTab = new SdkTab(PjktGraphics.GetGraphic("Settings"), PjktGraphics.GraphicColors["Settings"], SDKPageType.Settings);
             Button settingsTabButton = settingsTab.Q<Button>("TabButton");
             settingsTabButton.tooltip = "Settings";
             settingsTabButton.RegisterCallback<ClickEvent>(OnTabClick);
@@ -139,9 +139,9 @@ namespace PJKT.SDK2
                 //Debug.Log("logged in");
                 await HideLogin();
                 await HideRegister();
-                ShowSideBar();
                 ShowContent();
-                
+                ShowSideBar();
+
                 Notify("Login successful, welcome!", BoothErrorType.Info);
             }
             else

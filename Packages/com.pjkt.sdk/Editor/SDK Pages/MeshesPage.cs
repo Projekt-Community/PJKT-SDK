@@ -42,10 +42,10 @@ namespace PJKT.SDK2
                               + "Vram: " + BoothValidator.FormatSize(asset.VramSize);
             if (asset.Type == MeshType.SkinnedMesh)
             {
-                color = PjktGraphics.GraphicColors["Texture"];
+                color = PjktGraphics.GraphicColors["Settings"];
                 meshinfo += $"\nBlend Shapes: {asset.BlendShapes}";
             }
-            else if (asset.Type == MeshType.ParticleMesh) color = PjktGraphics.GraphicColors["Settings"];
+            else if (asset.Type == MeshType.ParticleMesh) color = PjktGraphics.GraphicColors["Particles"];
 
             InfoPanel panel = new InfoPanel(asset.ObjectReference, (Texture2D)asset.Icon, asset.Type.ToString(), meshinfo, color);
 

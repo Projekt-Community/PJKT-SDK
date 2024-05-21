@@ -22,6 +22,8 @@ namespace PJKT.SDK2
             asset.CloneTree(this);
             
             tabIcon.style.backgroundImage = icon;
+            tabIcon.style.unityBackgroundImageTintColor = color;
+            
             tabColor = color;
             pageType = sdkPage;
             

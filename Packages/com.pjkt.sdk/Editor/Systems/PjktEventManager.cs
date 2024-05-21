@@ -13,8 +13,7 @@ namespace PJKT.SDK2
     {
         public static Project SelectedProjekt { get; set; }
         public static List<Project> Projekts = new List<Project>();
-
-        [MenuItem("PJKT/Get Events")]
+        
         public static async void GetEvents()
         {
             Projekts.Clear();
