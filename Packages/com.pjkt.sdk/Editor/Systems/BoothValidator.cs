@@ -305,9 +305,6 @@ namespace PJKT.SDK2
                         continue;
                     }
 
-                    Debug.Log($"Path: {path}");
-                    
-                    
                     TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
                     
                     TextureImporterFormat format = importer.GetPlatformTextureSettings(buildTarget).format;
