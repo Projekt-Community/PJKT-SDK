@@ -264,6 +264,9 @@ namespace PJKT.SDK2
                 foreach (var textureID in textureIDs)
                 {
                     Texture texture = material.GetTexture(textureID);
+                    string path = AssetDatabase.GetAssetPath(texture);
+                    if (path == null || path.Contains(".asset")) continue;
+                    
                     if (texture == null) continue;
                     if (!textures.Contains(texture)) textures.Add(texture);
                     else
@@ -282,7 +285,6 @@ namespace PJKT.SDK2
                     }
                     
                     //get resolution from the actual texture file before import
-                    string path = AssetDatabase.GetAssetPath(texture);
                     if (path.Contains("unity_builtin_extra") || path.Contains("unity default resources"))
                     {
                         var defaultResourceInfo = new TextureInfo
@@ -303,7 +305,11 @@ namespace PJKT.SDK2
                         continue;
                     }
 
-                    TextureImporter importer = (TextureImporter)AssetImporter.GetAtPath(path);
+                    Debug.Log($"Path: {path}");
+                    
+                    
+                    TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+                    
                     TextureImporterFormat format = importer.GetPlatformTextureSettings(buildTarget).format;
                     TextureImporterPlatformSettings settings = importer.GetPlatformTextureSettings(buildTarget);
                     
