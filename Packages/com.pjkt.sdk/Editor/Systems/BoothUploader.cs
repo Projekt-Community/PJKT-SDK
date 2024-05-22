@@ -27,6 +27,8 @@ namespace PJKT.SDK2
                 return;
             }
 
+            PjktSdkWindow.Notify("Uploading booth to server...");
+            
             if (await CreateBoothPackage(boothDescriptor))
             {
                 success = await UploadBoothToServer(boothDescriptor);

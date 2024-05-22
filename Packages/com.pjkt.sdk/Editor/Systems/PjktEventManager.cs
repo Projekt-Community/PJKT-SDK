@@ -17,7 +17,7 @@ namespace PJKT.SDK2
         public static async void GetEvents()
         {
             Projekts.Clear();
-            
+
             string response = await PJKTNet.RequestMessage("/projects");
             if (string.IsNullOrEmpty(response)) return;
             
