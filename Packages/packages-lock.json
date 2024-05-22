@@ -5,7 +5,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.unity.textmeshpro": ""
+        "com.unity.textmeshpro": "3.0.6"
       }
     },
     "com.unity.ai.navigation": {
