@@ -439,9 +439,9 @@ namespace PJKT.SDK2
                 {
                     "Packages/com.vrchat.worlds/Samples/UdonExampleScene/UdonProgramSources/AvatarPedestal Program.asset"
                 };
-                
-                
+
                 List<string> allowedAssetPaths = new List<string>(Requirements.UdonWhitelist);
+
                 allowedAssetPaths.AddRange(vrcAssets);
 
                 foreach (string path in allowedAssetPaths)
