@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ButtonToggle
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: d7b0cc378a3e87f438ca733a4a4507b2,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: b47772265e71e4e4f90a788981e751ee, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 6a429353214c5534389def70b5626666, type: 3}

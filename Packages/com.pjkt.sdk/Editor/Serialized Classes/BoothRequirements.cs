@@ -8,7 +8,7 @@ namespace PJKT.SDK2
         public BoothRequirements()
         {
             MaxTriangles = 0;
-            MaxStaticMeshes = 1;
+            MaxStaticMeshes = 0;
             MaxMaterial = 0;
             MaxDims = new float[3];
             MaxDimsMargin = 0;

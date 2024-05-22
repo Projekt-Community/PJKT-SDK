@@ -96,6 +96,8 @@ namespace PJKT.SDK2.NET
             //Debug.Log($"get user info response: {response}");
             if (string.IsNullOrEmpty(response)) return false;
             
+            if (response.Contains("Unauthorized! Verification Failed")) return false;
+            
             //deserilize the json
             try { ActiveUser = JsonUtility.FromJson<PjktActiveUser>(response); }
             catch {return false;}

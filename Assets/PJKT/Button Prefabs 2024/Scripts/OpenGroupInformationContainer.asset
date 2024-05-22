@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: OpenGroupInformationContainer
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 0c9934099451006439aeb0a2cdf1e302,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 18448943685f1d543b059ef63ea7a25d, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 03827a9897c346043b74d817f5c60152, type: 3}
