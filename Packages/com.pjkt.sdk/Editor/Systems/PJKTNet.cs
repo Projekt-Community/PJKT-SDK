@@ -9,7 +9,7 @@ namespace PJKT.SDK2.NET
 {
     public class PJKTNet
     {
-        public const string defaultHost = "https://beta.projektcommunity.com";
+        public const string defaultHost = "https://api.projektcommunity.com";
         
         public static async Task<HttpResponseMessage> SendMessage(PJKTServerMessage message, string url = defaultHost)
         {
