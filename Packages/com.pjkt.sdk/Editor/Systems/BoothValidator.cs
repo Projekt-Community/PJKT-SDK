@@ -183,6 +183,8 @@ namespace PJKT.SDK2
             List<MeshAsset> meshAssets = new List<MeshAsset>();
             foreach (MeshFilter filter in staticMeshes)
             {
+                if (filter.mesh == null) continue;
+                
                 MeshAsset asset = GetAssetForMesh(filter.sharedMesh, MeshType.StaticMesh);
                 asset.Icon = icon;
                 asset.ObjectReference = filter.gameObject;
