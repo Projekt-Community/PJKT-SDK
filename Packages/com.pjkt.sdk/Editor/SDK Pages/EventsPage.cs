@@ -43,6 +43,13 @@ namespace PJKT.SDK2
                 }
                 else scrollView.Add(eventButton);
             }
+            
+            if (scrollView.childCount == 0 && topArea.childCount == 0)
+            {
+                NoBoothsMessage message = new NoBoothsMessage();
+                message.SetMessage("No events found. Check the discord to see if anything is coming up soon.");
+                topArea.Add(message);
+            }
         }
 
         private void OnEventButtonClick(ClickEvent evt)
