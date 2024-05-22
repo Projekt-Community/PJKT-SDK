@@ -114,7 +114,7 @@ namespace PJKT.SDK2
             BoothStats pickups = report.GetStats(StatsType.Pickups);
             requirementsColumn2.Add(new RequirementCategory("Max Pickups: " + requirements.MaxPickups, (int)pickups.PerformanceRank >= 1 ? goodPerfIcon : badPerfIcon));
             BoothStats avatars = report.GetStats(StatsType.AvatarPeds);
-            requirementsColumn2.Add(new RequirementCategory("Max Avatar Pedistals: " + requirements.MaxAvatarPedestals, (int)avatars.PerformanceRank >= 2 ? goodPerfIcon : badPerfIcon));
+            requirementsColumn2.Add(new RequirementCategory("Max Avatar Pedistals: " + requirements.MaxAvatarPedestals, (int)avatars.PerformanceRank >= 1 ? goodPerfIcon : badPerfIcon));
             BoothStats portals = report.GetStats(StatsType.Portals);
             requirementsColumn2.Add(new RequirementCategory("Max Portals: " + requirements.MaxPortals, (int)portals.PerformanceRank >= 1 ? goodPerfIcon : badPerfIcon));
             BoothStats udon = report.GetStats(StatsType.UdonBehaviours);
