@@ -78,7 +78,7 @@ namespace PJKT.SDK2.NET
             if (!sessionValid)
             {
                 PjktSdkWindow.Notify("Session is invalid, please log in again.", BoothErrorType.Error);
-                File.Delete(accountDataPath + "SessionData.pjkt");
+                Logout();
                 return;
             }
                 
