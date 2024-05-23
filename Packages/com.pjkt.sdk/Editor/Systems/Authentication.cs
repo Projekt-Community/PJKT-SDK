@@ -150,7 +150,9 @@ namespace PJKT.SDK2.NET
                 if (!Directory.Exists(accountDataPath)) Directory.CreateDirectory(accountDataPath);
                 File.WriteAllText(accountDataPath + "SessionData.pjkt", savedSEssionData);
 
-                if (!await GetActiveUserInfo());
+                bool foundProfile = await GetActiveUserInfo();
+                
+                if (!foundProfile)
                 {
                     PjktSdkWindow.Notify("Account created successfully, but error getting profile info. Try logging in", BoothErrorType.Error);
                     Logout();
@@ -208,7 +210,9 @@ namespace PJKT.SDK2.NET
             if (!Directory.Exists(accountDataPath)) Directory.CreateDirectory(accountDataPath);
             File.WriteAllText(accountDataPath + "SessionData.pjkt", savedSEssionData);
             
-            if (!await GetActiveUserInfo());
+            bool foundProfile = await GetActiveUserInfo();  Debug.Log(foundProfile);
+            
+            if (!foundProfile)
             {
                 PjktSdkWindow.Notify("Error getting profile info. Try logging in again", BoothErrorType.Error);
                 Logout();
