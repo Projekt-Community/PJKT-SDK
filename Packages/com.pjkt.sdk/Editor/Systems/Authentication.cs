@@ -150,6 +150,12 @@ namespace PJKT.SDK2.NET
                 if (!Directory.Exists(accountDataPath)) Directory.CreateDirectory(accountDataPath);
                 File.WriteAllText(accountDataPath + "SessionData.pjkt", savedSEssionData);
 
+                if (!await GetActiveUserInfo());
+                {
+                    PjktSdkWindow.Notify("Account created successfully, but error getting profile info. Try logging in", BoothErrorType.Error);
+                    Logout();
+                }
+                
                 PjktSdkWindow.Notify("Account created successfully!", BoothErrorType.Info);
                 IsLoggedIn = true;
             }
@@ -200,6 +206,12 @@ namespace PJKT.SDK2.NET
             string savedSEssionData = JsonUtility.ToJson(session);
             if (!Directory.Exists(accountDataPath)) Directory.CreateDirectory(accountDataPath);
             File.WriteAllText(accountDataPath + "SessionData.pjkt", savedSEssionData);
+            
+            if (!await GetActiveUserInfo());
+            {
+                PjktSdkWindow.Notify("Error getting profile info. Try logging in again", BoothErrorType.Error);
+                Logout();
+            }
             
             IsLoggedIn = true;
         }

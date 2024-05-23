@@ -9,7 +9,7 @@ namespace PJKT.SDK2
         public bool showBounds = true;
         public string currentCommunity = "None";
         public string GroupID = "grp_";
-        private static Vector3 _maxBounds = new Vector3(5, 5, 5);
+        public static Vector3 _maxBounds = new Vector3(5, 5, 5);
         private static float _margin = 0.1f;
         
         
@@ -45,7 +45,6 @@ namespace PJKT.SDK2
                     dims = Vector3.zero;
                 }
 
-
                 float longestSize = Mathf.Max(dims.x, dims.y, dims.z);
                 float maxLongestSide = Mathf.Max(MaxDims.x, MaxDims.y, MaxDims.z);
                 bool isTooBig = longestSize > maxLongestSide;
@@ -58,7 +57,6 @@ namespace PJKT.SDK2
                     Gizmos.color = isTooBig ? Color.red : Color.green;
                     Gizmos.DrawWireCube(center, dims);
                 }
-
             }
         #endif
     }
