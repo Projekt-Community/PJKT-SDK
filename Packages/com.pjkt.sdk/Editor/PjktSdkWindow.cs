@@ -187,6 +187,10 @@ namespace PJKT.SDK2
         private void ShowLogin()
         {
             VisualElement window = rootVisualElement.Q<VisualElement>("window");
+            
+            LoginForm existingform = window.Q<LoginForm>();
+            if (existingform != null) return;
+            
             LoginForm loginForm = new LoginForm();
             window.Add(loginForm);
             
