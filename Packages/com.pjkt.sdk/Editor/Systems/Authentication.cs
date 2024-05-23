@@ -154,6 +154,7 @@ namespace PJKT.SDK2.NET
                 {
                     PjktSdkWindow.Notify("Account created successfully, but error getting profile info. Try logging in", BoothErrorType.Error);
                     Logout();
+                    return;
                 }
                 
                 PjktSdkWindow.Notify("Account created successfully!", BoothErrorType.Info);
@@ -211,6 +212,7 @@ namespace PJKT.SDK2.NET
             {
                 PjktSdkWindow.Notify("Error getting profile info. Try logging in again", BoothErrorType.Error);
                 Logout();
+                return;
             }
             
             IsLoggedIn = true;
