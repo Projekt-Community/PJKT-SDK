@@ -42,6 +42,7 @@ namespace PJKT.SDK2
         {
             //assess the booth
             PjktEventManager.SelectedProjekt = Projekt;
+            BoothDescriptor._maxBounds = new Vector3(requirements.MaxDims[0], requirements.MaxDims[2], requirements.MaxDims[1]);
             BoothValidator.Requirements = requirements;
             BoothValidator.GenerateReport();
             
