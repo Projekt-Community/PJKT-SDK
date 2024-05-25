@@ -124,7 +124,7 @@ namespace PJKT.SDK2
         private static BoothStats GetBounds(List<Renderer> renderers)
         { 
             //Override the max dims with the margin
-            Vector3 maxDims = new Vector3(Requirements.MaxDims[0], Requirements.MaxDims[1], Requirements.MaxDims[2]);
+            Vector3 maxDims = new Vector3(Requirements.MaxDims[0], Requirements.MaxDims[2], Requirements.MaxDims[1]);
             Vector3 dims = maxDims + (Vector3.one * Requirements.MaxDimsMargin);
             
             string reqs = $"Max Bounds: {maxDims.ToString()}";
