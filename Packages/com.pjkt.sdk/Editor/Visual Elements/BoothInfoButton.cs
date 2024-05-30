@@ -64,6 +64,14 @@ namespace PJKT.SDK2
             boothSelectButton.style.minWidth = 250;
             boothSelectButton.style.flexGrow = 1;
             
+            if (PjktEventManager.SelectedProjekt == null)
+            {
+                uploadButton.SetEnabled(false);
+                uploadButton.text = "Select an event to upload";
+                boothIssues.Add(new BoothError("Select the event you want to upload for first.", BoothErrorType.Warning));
+                return;
+            }
+
             //make error message for stuff over the performance limits
             foreach (BoothStats stats in BoothValidator.Report.Stats)
             {
@@ -72,14 +80,7 @@ namespace PJKT.SDK2
                     boothIssues.Add(new BoothError(stats.DetailsString, BoothErrorType.Error));
                 }
             }
-
-            if (PjktEventManager.SelectedProjekt == null)
-            {
-                uploadButton.SetEnabled(false);
-                uploadButton.text = "Select an event to upload";
-                return;
-            }
-
+            
             if (BoothValidator.Report.Overallranking < BoothPerformanceRanking.Ok)
             {
                 uploadButton.SetEnabled(false);
