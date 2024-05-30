@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Firebase;
 using Firebase.Auth;
-using UnityEditor;
 using UnityEngine;
 
 namespace PJKT.SDK2.NET

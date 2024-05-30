@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ResetPickups
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 2e54f988d1d8fbe4ea97046c426dc1db, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 31219ef3852a41049999f69686f6100a,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 2336b8b7c4218894ca25e35ab5a61247, type: 3}

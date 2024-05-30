@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using PJKT.SDK2.NET;
-using UnityEditor;
 using UnityEngine;
 
 /// <summary>

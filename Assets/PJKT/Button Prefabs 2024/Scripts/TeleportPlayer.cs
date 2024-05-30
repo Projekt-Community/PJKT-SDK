@@ -1,9 +1,7 @@
-﻿
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEditor;
 using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 
 namespace PJKT.SDK.Prefabs
 {
