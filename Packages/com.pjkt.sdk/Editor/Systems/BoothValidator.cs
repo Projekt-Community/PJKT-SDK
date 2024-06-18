@@ -183,7 +183,7 @@ namespace PJKT.SDK2
             List<MeshAsset> meshAssets = new List<MeshAsset>();
             foreach (MeshFilter filter in staticMeshes)
             {
-                if (filter.mesh == null) continue;
+                if (filter.sharedMesh == null) continue;
                 
                 MeshAsset asset = GetAssetForMesh(filter.sharedMesh, MeshType.StaticMesh);
                 asset.Icon = icon;
@@ -434,8 +434,7 @@ namespace PJKT.SDK2
                     disallowedScripts = true;
                     continue;
                 }
-                
-                
+
                 string assetpath = AssetDatabase.GetAssetPath(behaviour.programSource);
                 bool allowed = false;
                 
