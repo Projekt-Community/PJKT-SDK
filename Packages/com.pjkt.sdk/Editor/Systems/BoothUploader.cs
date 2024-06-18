@@ -31,8 +31,16 @@ namespace PJKT.SDK2
             
             if (await CreateBoothPackage(boothDescriptor))
             {
+                if (boothDescriptor.currentCommunity == "Debug")
+                {
+                    PjktSdkWindow.Notify("Created Debug Booth. No upload necessary.");
+                    AssetDatabase.Refresh();
+                    return;
+                }
+                
                 success = await UploadBoothToServer(boothDescriptor);
             }
+            
             
             CleanupOperations(boothDescriptor);
             if (success) PjktSdkWindow.Notify("Booth Uploaded Successfully. See you at the event!");
