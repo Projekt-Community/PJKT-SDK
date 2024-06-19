@@ -107,6 +107,9 @@ namespace PJKT.SDK2
             Report.Stats.Add(GetFileSize(textureInfos, meshes));
 
             Report.Overallranking = OverallRank(); //done :3
+            
+            //sike we got issues
+            FindSharedMeshFix.FixMeshInstances();
         }
 
         private static BoothPerformanceRanking OverallRank()
