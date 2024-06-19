@@ -50,6 +50,8 @@ namespace PJKT.SDK2
         {
             prefabPath = defaultPrefabPath + boothDescriptor.currentCommunity +"/" + boothDescriptor.boothName + ".prefab";
             packagePath = defaultPackagePath + boothDescriptor.currentCommunity +"/" + boothDescriptor.boothName + ".unitypackage";
+
+            boothDescriptor.SDKVersion = "2.1.3";
             
             try
             {
