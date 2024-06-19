@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace PJKT.SDK2
 {
@@ -10,6 +11,7 @@ namespace PJKT.SDK2
         public string currentCommunity = "None";
         public string GroupID = "grp_";
         public static Vector3 _maxBounds = new Vector3(5, 5, 5);
+        public string SDKVersion = "Unknown";
         private static float _margin = 0.1f;
         
         
@@ -58,6 +60,7 @@ namespace PJKT.SDK2
                     Gizmos.DrawWireCube(center, dims);
                 }
             }
-        #endif
+        
+#endif
     }
 }
