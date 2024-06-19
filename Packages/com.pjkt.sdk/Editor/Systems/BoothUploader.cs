@@ -55,7 +55,11 @@ namespace PJKT.SDK2
             {
                 //Turn the booth into a prefab
                 CreateDirectory(prefabPath);
-                GameObject prefab = PrefabUtility.SaveAsPrefabAsset(boothDescriptor.gameObject, prefabPath);
+                
+                // Clone this object to avoid modifying the original
+                var boothDescriptorNew = UnityEngine.Object.Instantiate(boothDescriptor.gameObject);
+                
+                GameObject prefab = PrefabUtility.SaveAsPrefabAsset(boothDescriptorNew, prefabPath);
                 AssetDatabase.ImportAsset(prefabPath);
             
                 //Wait for this file to exist
@@ -77,6 +81,8 @@ namespace PJKT.SDK2
 
                 //Wait for this file to exist
                 while (!File.Exists(packagePath)) { await Task.Delay(100); }
+                
+                boothDescriptorNew.name = boothDescriptor.boothName + " (Uploaded Copy, for reference only)";
 
                 return true;
             }
