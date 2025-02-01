@@ -162,7 +162,7 @@ namespace PJKT.SDK2
             uploadButton.style.borderTopColor = new StyleColor(new Color(0.02352941f, 0.4666667f, 0.3764706f));
             uploadButton.style.borderLeftColor = new StyleColor(new Color(0.02352941f, 0.4666667f, 0.3764706f));
             uploadButton.style.borderRightColor = new StyleColor(new Color(0.02352941f, 0.4666667f, 0.3764706f));
-            uploadButton.text = "Upload Booth";
+            uploadButton.text = "Build and upload Booth";
             uploadButton.SetEnabled(true);
         }
     }

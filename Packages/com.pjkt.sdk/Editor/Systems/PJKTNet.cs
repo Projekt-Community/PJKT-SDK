@@ -9,8 +9,8 @@ namespace PJKT.SDK2.NET
 {
     public class PJKTNet
     {
-        public const string defaultHost = "https://api.projektcommunity.com";
-        
+        public const string defaultHost = "https://beta.projektcommunity.com";
+
         public static async Task<HttpResponseMessage> SendMessage(PJKTServerMessage message, string url = defaultHost)
         {
             string messageJson = JsonUtility.ToJson(message, true);
@@ -58,13 +58,14 @@ namespace PJKT.SDK2.NET
             {
                 using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri))
                 {
+                    //request.Headers.Add("Origin", "https://www.projektcommunity.com");
                     //Debug.Log($"sending Get request {request.ToString()} to {endpoint}");
                     response = await client.SendAsync(request);
                 }
             }
             
             string body = await response.Content.ReadAsStringAsync();
-            //Debug.Log(response.ToString() + '\n' + body);
+            Debug.Log(response.ToString() + '\n' + body);
             return body;
         }
 
