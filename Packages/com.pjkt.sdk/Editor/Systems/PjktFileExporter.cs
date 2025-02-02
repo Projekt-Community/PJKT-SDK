@@ -12,7 +12,7 @@ namespace PJKT.SDK2
     {
 #if UNITY_EDITOR
         
-        [MenuItem("PJKT/TestExporter")]
+        //[MenuItem("PJKT/TestExporter")]
         public static void Test()
         {
             if(Selection.activeObject is GameObject)

@@ -30,6 +30,12 @@ namespace PJKT.SDK2
             PjktSdkWindow.Notify("Building...");
 
             long buildsize = PjktBuildSize.AssessBuildSize(boothDescriptor);
+            if (buildsize == -1)
+            {
+                PjktSdkWindow.Notify("Failed to build booth. Ask for help on the discord.");
+                return;
+            }
+
             long maxBuildSizeBytes = PjktEventManager.SelectedProjekt.booth_requirements.MaxBuildSize * 1024 * 1024;
             if (buildsize > maxBuildSizeBytes)
             {
