@@ -1,10 +1,8 @@
 using System;
 using System.IO;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.SceneManagement;
 #endif
 
 
@@ -27,37 +25,39 @@ namespace PJKT.SDK2
             
             if (booth == null)
             {
-                Debug.LogError("Selected object does not have a booth descriptor");
+                Debug.LogError("<color=#FFBB00><b>PJKT SDK:</b></color> Selected object does not have a booth descriptor");
                 return;
             }
             
-            AssessBuildSize(booth);
+            long size = AssessBuildSize(booth);
+
+            if (size == -1)
+            {
+                Debug.Log("<color=#FFBB00><b>PJKT SDK:</b></color> Failed to build booth");
+                return;
+            }
+
+            Debug.Log("<color=#FFBB00><b>PJKT SDK:</b></color> Build size: " + BoothValidator.FormatSize(size));
         }
         
         //plan is to create a new temporary scene, copy the booth to it and build that scene into an asset bundle
         public static long AssessBuildSize(BoothDescriptor booth)
         {
             //prolly need to do some sort of editor lock or progress bar here
-            
-            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
             string tempFilePath = Path.GetTempPath() + "PjktSdk\\";
-            string scenePath = "Assets/PjktTemp/" + booth.currentCommunity + "_BuildSizeTemp.unity";
+            string prefabPath = "Assets/PjktTemp/" + booth.currentCommunity + "_BuildSizeTemp.prefab";
             
             AssetBundleManifest manifest = null;
             
             try
             {
-                GameObject boothCopy = GameObject.Instantiate(booth.gameObject);
-                SceneManager.MoveGameObjectToScene(boothCopy, scene);
-
                 if (!Directory.Exists("Assets/PjktTemp/")) Directory.CreateDirectory("Assets/PjktTemp/");
-
-                EditorSceneManager.SaveScene(scene, scenePath);
+                PrefabUtility.SaveAsPrefabAsset(booth.gameObject, prefabPath);
 
                 AssetBundleBuild build = new AssetBundleBuild
                 {
                     assetBundleName = $"{booth.currentCommunity}_BuildSizeTemp",
-                    assetNames = new[] { scenePath }
+                    assetNames = new[] { prefabPath }
                 };
 
                 manifest = BuildPipeline.BuildAssetBundles(tempFilePath, new[] { build }, BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64); //figure out android later
@@ -66,23 +66,19 @@ namespace PJKT.SDK2
             {
                 throw e;
             }
-            finally
-            {
-                //get rid of temp scene
-                EditorSceneManager.CloseScene(scene, true);
-            }
 
-            if (manifest == null) return 0;
+            if (manifest == null) return -1;
+            
             if (!File.Exists(tempFilePath + $"{booth.currentCommunity}_BuildSizeTemp")) return -1;
                 
             FileInfo fileInfo = new FileInfo(tempFilePath + $"{booth.currentCommunity}_BuildSizeTemp");
-            
-            Debug.Log("Build size: " + fileInfo.Length + " bytes");
             long builtSize = fileInfo.Length;
             
-            //delete the files
-            File.Delete(scenePath);
-            File.Delete(tempFilePath + $"{booth.currentCommunity}_BuildSizeTemp");
+            //get rid of temp prefab
+            if (File.Exists(prefabPath)) File.Delete(prefabPath);
+            if (File.Exists(prefabPath + ".meta")) File.Delete(prefabPath + ".meta");
+                
+            AssetDatabase.Refresh();
             
             return builtSize;
         }
