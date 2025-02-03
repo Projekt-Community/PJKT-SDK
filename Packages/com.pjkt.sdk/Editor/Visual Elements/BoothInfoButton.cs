@@ -2,6 +2,7 @@ using PJKT.SDK2.Extras;
 using PJKT.SDK2.NET;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 namespace PJKT.SDK2
@@ -19,7 +20,8 @@ namespace PJKT.SDK2
         private VisualElement boothPreview => this.Q<VisualElement>("PreviewImage");
         private VisualElement boothIssues => this.Q<VisualElement>("Booth_Issues");
         private Button uploadButton => this.Q<Button>("Upload_Button");
-        private  Button assessButton => this.Q<Button>("AssessBoothButton");
+        private Button assessButton => this.Q<Button>("AssessBoothButton");
+        private Button buildTestButton => this.Q<Button>("BuildTest_Button"); 
 
         public BoothDescriptor booth { get; private set; }
 
@@ -35,8 +37,12 @@ namespace PJKT.SDK2
             
             uploadButton.RegisterCallback<ClickEvent>(UploadBooth);
             assessButton.RegisterCallback<ClickEvent>(CheckBooth);
+            buildTestButton.RegisterCallback<ClickEvent>(BuildAndTestBooth);
 
-            uploadButton.style.cursor = SillyCursors.GetSillyCursor();
+            StyleCursor cursor = SillyCursors.GetSillyCursor();
+            uploadButton.style.cursor = cursor;
+            assessButton.style.cursor = cursor;
+            buildTestButton.style.cursor = cursor;
         }
 
         private void CheckBooth(ClickEvent evt)
@@ -98,6 +104,30 @@ namespace PJKT.SDK2
             boothIssues.Clear();
         }
 
+        private async void BuildAndTestBooth(ClickEvent evt)
+        {
+            //check if user is logged into vrcsdk
+            if (!VRC.Core.APIUser.IsLoggedIn)
+            {
+                PjktSdkWindow.Notify("Please Login to the VRChat SDK first!", BoothErrorType.Error);
+                return;
+            }
+
+            //first dialog box to tell user were gonna make some changes to thier booth
+            if (!ConfirmBoothChanges()) return;
+
+            //if accepted run the booth validator prepare booth to mark static change lights and such
+            BoothValidator.PrepareBooth(booth);
+
+            //do a test build
+            PjktTestScene testScene = new PjktTestScene(booth, new PjktTestSceneOptions()); //options can come from project later
+            bool success = await testScene.BuildAndTestBooth();
+            
+            //refresh booths page
+            PjktSdkWindow window = EditorWindow.GetWindow<PjktSdkWindow>();
+            window.RefreshPage();
+        }
+
         private async void UploadBooth(ClickEvent evt)
         {
             //booth upload goes here
@@ -148,6 +178,10 @@ namespace PJKT.SDK2
                 return;
             }
             
+            //prepare the booth
+            if (!ConfirmBoothChanges()) return;
+            BoothValidator.PrepareBooth(booth);
+            
             //everything checks out
             await BoothUploader.UploadBoothAsync(booth);
             
@@ -164,6 +198,22 @@ namespace PJKT.SDK2
             uploadButton.style.borderRightColor = new StyleColor(new Color(0.02352941f, 0.4666667f, 0.3764706f));
             uploadButton.text = "Build and upload Booth";
             uploadButton.SetEnabled(true);
+        }
+
+        private bool ConfirmBoothChanges()
+        {
+            string message = $"This will make the following changes to your booth: " +
+                             $"\nAll Lights will be set to baked" +
+                             $"\nAll lights will have their range and intensity limited" +
+                             $"\nAll non animated objects will have their static flags adjusted" +
+                             $"\n\nIf there is any unusual behaviour after this process please let us know on the discord.";
+            if (!EditorUtility.DisplayDialog("Confirm changes", message, "Go for it", "Actually, hold up"))
+            {
+                PjktSdkWindow.Notify("Build canceled", BoothErrorType.Warning);
+                return false;
+            }
+
+            return true;
         }
     }
 }
