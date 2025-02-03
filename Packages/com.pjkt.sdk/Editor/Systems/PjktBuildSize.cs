@@ -52,6 +52,7 @@ namespace PJKT.SDK2
             try
             {
                 if (!Directory.Exists("Assets/PjktTemp/")) Directory.CreateDirectory("Assets/PjktTemp/");
+                if (!Directory.Exists(tempFilePath)) Directory.CreateDirectory(tempFilePath);
                 PrefabUtility.SaveAsPrefabAsset(booth.gameObject, prefabPath);
 
                 AssetBundleBuild build = new AssetBundleBuild
