@@ -2,7 +2,6 @@ using PJKT.SDK2.Extras;
 using PJKT.SDK2.NET;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 namespace PJKT.SDK2
