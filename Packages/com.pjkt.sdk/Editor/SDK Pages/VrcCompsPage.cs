@@ -59,6 +59,8 @@ namespace PJKT.SDK2
         
             foreach (UdonInfo udon in udonBehaviours.ComponentList)
             {
+                if (udon == null) continue;
+                
                 string udonInfo = $"Program Source: {udon.ProgramSource} \n"
                                   + $"Allowed in PJKT: {udon.Allowed}\n"
                                   + $"Sync Type: {udon.SyncType}\n";
