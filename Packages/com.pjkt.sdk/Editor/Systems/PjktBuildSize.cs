@@ -53,7 +53,19 @@ namespace PJKT.SDK2
             {
                 if (!Directory.Exists("Assets/PjktTemp/")) Directory.CreateDirectory("Assets/PjktTemp/");
                 if (!Directory.Exists(tempFilePath)) Directory.CreateDirectory(tempFilePath);
-                PrefabUtility.SaveAsPrefabAsset(booth.gameObject, prefabPath);
+                
+                //make a copy before anything
+                GameObject boothClone = GameObject.Instantiate(booth.gameObject);
+                
+                //if the booth clone has any material swappers remove them
+                PjktMaterialSwapper[] swappers = boothClone.GetComponentsInChildren<PjktMaterialSwapper>(true);
+                foreach (PjktMaterialSwapper swap in swappers)
+                {
+                    GameObject.DestroyImmediate(swap);
+                }
+                
+                PrefabUtility.SaveAsPrefabAsset(boothClone, prefabPath);
+                GameObject.DestroyImmediate(boothClone);
 
                 AssetBundleBuild build = new AssetBundleBuild
                 {
@@ -78,7 +90,7 @@ namespace PJKT.SDK2
             //get rid of temp prefab
             if (File.Exists(prefabPath)) File.Delete(prefabPath);
             if (File.Exists(prefabPath + ".meta")) File.Delete(prefabPath + ".meta");
-                
+
             AssetDatabase.Refresh();
             
             return builtSize;
