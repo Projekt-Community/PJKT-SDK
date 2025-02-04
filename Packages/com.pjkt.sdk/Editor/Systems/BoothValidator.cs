@@ -717,7 +717,9 @@ namespace PJKT.SDK2
             objectPaths.Add(GetGameobjectPath(booth.gameObject));
             foreach (Transform child in booth.transform)
             {
+                //ignore skinned meshes and pickups
                 if (child.TryGetComponent(typeof(SkinnedMeshRenderer), out _)) continue;
+                if (child.TryGetComponent(typeof(VRCPickup), out _)) continue;
                 objectPaths.Add(GetGameobjectPath(child.gameObject));
             }
             
@@ -730,17 +732,7 @@ namespace PJKT.SDK2
                 lights[i].intensity = Mathf.Clamp(lights[i].intensity, 0, 10);
                 lights[i].range = Mathf.Clamp(lights[i].range, 0, 7);
             }
-            
-            /*
-            //remove all skinnend meshes
-            SkinnedMeshRenderer[] skinnedMeshes = booth.GetComponentsInChildren<SkinnedMeshRenderer>();
-            for (int i = 0; i < skinnedMeshes.Length; i++)
-            {
-                string path = GetGameobjectPath(skinnedMeshes[i].gameObject);
-                objectPaths.Remove(path);
-            }*/
-            
-            
+
             //get all animations from the report
             BoothStats animStats = Report.GetStats(StatsType.AnimationClips);
             List<AnimationClip> animationClips = new List<AnimationClip>();

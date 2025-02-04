@@ -133,8 +133,8 @@ namespace PJKT.SDK2
                 string metaFile = file + ".meta";
                 
                 //copy the file to the new location
-                File.Copy(file, newFilePath);
-                File.Copy(metaFile, newFilePath + ".meta");
+                File.Copy(file, newFilePath, true);
+                File.Copy(metaFile, newFilePath + ".meta", true);
             }
         }
 
