@@ -12,10 +12,10 @@ namespace PJKT.SDK2
 {
     internal static class BoothUploader
     {
-        private static string defaultPrefabPath = "Assets/PJKTCustomBooth/";
-        private static string defaultPackagePath = "Assets/PJKTCustomBooth/";
+        //private static string defaultPrefabPath = "Assets/PJKTCustomBooth/";
+        //private static string defaultPackagePath = "Assets/PJKTCustomBooth/";
         
-        private static string prefabPath = "";
+        //private static string prefabPath = "";
         private static string packagePath = "";
         
         public static async Task UploadBoothAsync(BoothDescriptor boothDescriptor)

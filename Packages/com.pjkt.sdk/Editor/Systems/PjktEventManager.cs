@@ -19,13 +19,10 @@ namespace PJKT.SDK2
             string response = await PJKTNet.RequestMessage("/projects");
             if (string.IsNullOrEmpty(response)) return;
             
-            //Debug.Log($"events response: \n{response}");
+            Debug.Log($"events response: \n{response}");
 
             ProjectsData data = JsonUtility.FromJson<ProjectsData>(response);
             Projekts = new List<Project>(data.projects);
-
-            //foreach (Project pjktProjekt in AllProjekts.projects) pjktProjekt.GetHeaderImage();
-
         }
     }
 }
