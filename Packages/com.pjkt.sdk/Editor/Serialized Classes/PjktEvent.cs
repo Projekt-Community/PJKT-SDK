@@ -22,11 +22,23 @@ namespace PJKT.SDK2
         public int group_photo_id;
         public int poster_id;
         public int venue_id;
+        public PjktRemoteImage Logo;
     }
 
     [Serializable]
     public class ProjectsData
     {
         public List<Project> projects;
+    }
+
+    [Serializable]
+    public class PjktRemoteImage
+    {
+        public int id;
+        public string name;
+        public string path;
+        public string createdAt;
+        public string updatedAt;
+        public string deletedAt;
     }
 }
