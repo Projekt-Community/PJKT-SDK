@@ -178,7 +178,11 @@ namespace PJKT.SDK2
             }
             
             //prepare the booth
-            if (!ConfirmBoothChanges()) return;
+            if (!ConfirmBoothChanges())
+            {
+                ResetUploadButton();
+                return;
+            }
             BoothValidator.PrepareBooth(booth);
             
             //everything checks out
