@@ -17,16 +17,28 @@ namespace PJKT.SDK2
         public string events_deadline_date;
         public string createdAt;
         public string updatedAt;
-        public object deletedAt;
-        public object logo_id;
-        public object group_photo_id;
-        public object poster_id;
-        public object venue_id;
+        public string deletedAt;
+        public int logo_id;
+        public int group_photo_id;
+        public int poster_id;
+        public int venue_id;
+        public PjktRemoteImage Logo;
     }
 
     [Serializable]
     public class ProjectsData
     {
         public List<Project> projects;
+    }
+
+    [Serializable]
+    public class PjktRemoteImage
+    {
+        public int id;
+        public string name;
+        public string path;
+        public string createdAt;
+        public string updatedAt;
+        public string deletedAt;
     }
 }

@@ -23,9 +23,6 @@ namespace PJKT.SDK2
 
             ProjectsData data = JsonUtility.FromJson<ProjectsData>(response);
             Projekts = new List<Project>(data.projects);
-
-            //foreach (Project pjktProjekt in AllProjekts.projects) pjktProjekt.GetHeaderImage();
-
         }
     }
 }

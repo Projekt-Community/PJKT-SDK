@@ -1,5 +1,7 @@
+using Cysharp.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UIElements;
 
 namespace PJKT.SDK2
@@ -28,12 +30,16 @@ namespace PJKT.SDK2
         {
             VisualTreeAsset asset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
             asset.CloneTree(this);
-            
             Projekt = pjktEvent;
+            if (Projekt != null) FetchEventLogo();
             requirements = pjktEvent.booth_requirements;
-            //middleLogo.style.backgroundImage = PjktGraphics.GetGraphic("FestLogo"); //waiting on backend
             background.style.backgroundImage = PjktGraphics.GetRandomPaintSplat();
             titleBar.tooltip = pjktEvent.name;
+        }
+
+        private async void FetchEventLogo()
+        {
+            middleLogo.style.backgroundImage = await PjktGraphics.GetWebTexture(Projekt.Logo.path);
         }
         
         public void SelectEvent()

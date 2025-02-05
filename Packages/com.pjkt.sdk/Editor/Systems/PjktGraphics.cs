@@ -1,7 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace PJKT.SDK2
 {
@@ -48,6 +51,8 @@ namespace PJKT.SDK2
             {"Texture", new Color(0.9f, 0.8f, 0.2f)},
         };
 
+        private static Dictionary<string, Texture2D> downloadedImageCache = new Dictionary<string, Texture2D>();
+
         public static Texture2D GetRandomPaintSplat()
         {
             string[] splats = new string[]
@@ -79,6 +84,22 @@ namespace PJKT.SDK2
         {
             int r = Random.Range(0, GraphicColors.Count -1);
             return GraphicColors.ElementAt(r).Value;
+        }
+
+        public static async Task<Texture2D> GetWebTexture(string url)
+        {
+            //if we dl it before then give em that
+            if (downloadedImageCache.ContainsKey(url)) return downloadedImageCache[url];
+            
+            //otherwise
+            UnityWebRequest request = UnityWebRequestTexture.GetTexture(url);
+            await request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError) return null;
+            Texture2D tex = DownloadHandlerTexture.GetContent(request);
+            
+            if (tex != null) downloadedImageCache.Add(url, tex);
+            return tex;
         }
     }
 }

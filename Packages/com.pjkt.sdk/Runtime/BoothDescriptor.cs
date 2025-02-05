@@ -4,6 +4,7 @@ using UnityEngine;
 namespace PJKT.SDK2
 {
     [DisallowMultipleComponent]
+    [AddComponentMenu("PJKT/Booth Descriptor")]
     public class BoothDescriptor : MonoBehaviour
     {
         public string boothName { get { return gameObject.name;}}

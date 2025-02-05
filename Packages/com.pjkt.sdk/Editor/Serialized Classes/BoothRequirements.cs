@@ -25,8 +25,9 @@ namespace PJKT.SDK2
             MaxMirrors = 0;
             MaxUdonScripts = 0;
             UdonWhitelist = new string[0];
+            MaxBuildSize = 0;
         }
-        public BoothRequirements(int maxTriangles, int maxStaticMeshes, int maxMaterial, float[] maxDims, float maxDimsMargin, int maxFileSize, int maxVram, int maxSkinnedMeshRenderers, int maxAnimators, int maxAnimations, int maxTextMeshPro, int maxParticles, int maxPickups, int maxAvatarPedestals, int maxPortals, int maxMirrors, int maxUdonScripts, string[] udonWhitelist)
+        public BoothRequirements(int maxTriangles, int maxStaticMeshes, int maxMaterial, float[] maxDims, float maxDimsMargin, int maxFileSize, int maxVram, int maxSkinnedMeshRenderers, int maxAnimators, int maxAnimations, int maxTextMeshPro, int maxParticles, int maxPickups, int maxAvatarPedestals, int maxPortals, int maxMirrors, int maxUdonScripts, string[] udonWhitelist, int maxBuildSize)
         {
             MaxTriangles = maxTriangles;
             MaxStaticMeshes = maxStaticMeshes;
@@ -46,6 +47,7 @@ namespace PJKT.SDK2
             MaxMirrors = maxMirrors;
             MaxUdonScripts = maxUdonScripts;
             UdonWhitelist = udonWhitelist;
+            MaxBuildSize = maxBuildSize;
         }
 
         public float[] MaxDims;
@@ -66,36 +68,6 @@ namespace PJKT.SDK2
         public int MaxAvatarPedestals;
         public int MaxSkinnedMeshRenderers;
         public int MaxStaticMeshes;
-
-        /*
-        //model
-        public readonly int MaxTriangles;
-        public readonly int MaxStaticMeshes;
-        public readonly int MaxMaterial;
-        public readonly float[] MaxDims;
-        public readonly float MaxDimsMargin;
-        
-        //size
-        public readonly int MaxFileSize;
-        public readonly int MaxVram;
-        
-        //animations
-        public readonly int MaxSkinnedMeshRenderers;
-        public readonly int MaxAnimators;
-        public readonly int MaxAnimations;
-        
-        //TMP
-        public readonly int MaxTextMeshPro;
-        
-        //particles
-        public readonly int MaxParticles;
-        
-        //vrchat stuff
-        public readonly int MaxPickups;
-        public readonly int MaxAvatarPedestals;
-        public readonly int MaxPortals;
-        public readonly int MaxMirrors;
-        public readonly int MaxUdonScripts;
-        public readonly string[] UdonWhitelist;*/
+        public int MaxBuildSize;
     }
 }

@@ -347,6 +347,19 @@ namespace PJKT.SDK2
             _sdkPageView.style.translate = new Translate(0, 0);
         }
 
+        public void RefreshPage()
+        {
+            if (_selectedTab == null) return;
+            _selectedTab.SelectTab(false);
+            _sdkPageView.Clear();
+            _selectedTab.SelectTab(true);
+            
+            SDKPage newPage = GetSDKPage(_selectedTab.pageType);
+            if (newPage == null) return;
+            _sdkPageView.Add(newPage);
+            newPage.OnTabEnable();
+        }
+
         private SDKPage GetSDKPage(SDKPageType type)
         {
             SDKPage page = null;

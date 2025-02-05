@@ -703,5 +703,99 @@ namespace PJKT.SDK2
 
             return bytes;
         }
+
+        public static void PrepareBooth(BoothDescriptor booth)
+        {
+            if (booth == null)
+            {
+                Debug.LogError("<color=#FFBB00><b>PJKT SDK:</b></color> Object does not have a booth descriptor");
+                return;
+            }
+            
+            //get all gameobjects in the booth
+            List<string> objectPaths = new List<string>();
+            objectPaths.Add(GetGameobjectPath(booth.gameObject));
+            foreach (Transform child in booth.transform)
+            {
+                //ignore skinned meshes and pickups
+                if (child.TryGetComponent(typeof(SkinnedMeshRenderer), out _)) continue;
+                if (child.TryGetComponent(typeof(VRCPickup), out _)) continue;
+                objectPaths.Add(GetGameobjectPath(child.gameObject));
+            }
+            
+            //find all lights and limit
+            Light[] lights = booth.GetComponentsInChildren<Light>();
+            for (int i = 0; i < lights.Length; i++)
+            {
+                //light limits
+                lights[i].lightmapBakeType = LightmapBakeType.Baked;
+                lights[i].intensity = Mathf.Clamp(lights[i].intensity, 0, 10);
+                lights[i].range = Mathf.Clamp(lights[i].range, 0, 7);
+            }
+
+            //get all animations from the report
+            BoothStats animStats = Report.GetStats(StatsType.AnimationClips);
+            List<AnimationClip> animationClips = new List<AnimationClip>();
+            foreach (object clip in animStats.ComponentList) animationClips.Add(clip as AnimationClip);
+
+            //get all gameobjects affected by the animations
+            HashSet<string> affectedPaths = new HashSet<string>();
+
+            // Collect all paths affected by animations
+            foreach (var clip in animationClips)
+            {
+                var bindings = AnimationUtility.GetCurveBindings(clip);
+                foreach (var binding in bindings)
+                {
+                    affectedPaths.Add(binding.path); // Full path of the animated object
+                }
+            }
+            
+            // Remove affected objects and their children
+            objectPaths = objectPaths.Where(path => !IsAffectedOrChild(path, affectedPaths)).ToList();
+            
+            //set flags on remaining objects
+            StaticEditorFlags flags = StaticEditorFlags.OccludeeStatic | StaticEditorFlags.ReflectionProbeStatic | StaticEditorFlags.BatchingStatic;
+            for (int i = 0; i < objectPaths.Count; i++)
+            {
+                GameObject obj = GameObject.Find(objectPaths[i]);
+                if (obj == null) continue;
+                
+                StaticEditorFlags existingFlags = GameObjectUtility.GetStaticEditorFlags(obj);
+                StaticEditorFlags newFlags = existingFlags | flags;
+                GameObjectUtility.SetStaticEditorFlags(obj, newFlags);
+            }
+        }
+        
+        private  static bool IsAffectedOrChild(string path, HashSet<string> affectedPaths)
+        {
+            // If the exact object is animated, remove it
+            if (affectedPaths.Contains(path)) return true;
+
+            // Check if it is a child of an affected object
+            foreach (var affectedPath in affectedPaths)
+            {
+                if (path.StartsWith(affectedPath + "/")) // Ensures children are matched
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
+        private static string GetGameobjectPath(GameObject go) {
+            string path = go.name;
+            while (go.transform.parent != null) {
+                go = go.transform.parent.gameObject;
+                //If the name contains a /, it will break the path
+                if (go.name.Contains("/")) {
+                    //Debug.LogError("GameObject name contains a /");
+                    return "";
+                }
+                path = go.name + "/" + path;
+            }
+            return path;
+        }
     }
 }
