@@ -39,12 +39,7 @@ namespace PJKT.SDK2
 
         private async void FetchEventLogo()
         {
-            UnityWebRequest request = UnityWebRequestTexture.GetTexture(Projekt.Logo.path);
-            await request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError) return;
-            Texture2D tex = DownloadHandlerTexture.GetContent(request);
-            middleLogo.style.backgroundImage = tex; Debug.Log("got the img");
+            middleLogo.style.backgroundImage = await PjktGraphics.GetWebTexture(Projekt.Logo.path);
         }
         
         public void SelectEvent()
