@@ -20,6 +20,12 @@ namespace PJKT.SDK2
         public static void Test()
         {
             //get descriptor from selected object
+            if (Selection.activeObject == null)
+            {
+                Debug.LogError("<color=#FFBB00><b>PJKT SDK:</b></color> Select an object with a booth descriptor");
+                return;
+            }
+            
             GameObject obj = Selection.activeObject as GameObject;
             BoothDescriptor booth = obj.GetComponent<BoothDescriptor>();
             

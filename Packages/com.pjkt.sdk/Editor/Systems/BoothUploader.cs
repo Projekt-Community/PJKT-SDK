@@ -39,7 +39,7 @@ namespace PJKT.SDK2
             long maxBuildSizeBytes = PjktEventManager.SelectedProjekt.booth_requirements.MaxBuildSize * 1024 * 1024;
             if (buildsize > maxBuildSizeBytes)
             {
-                PjktSdkWindow.Notify($"Booth exceeds maximum build size ({BoothValidator.FormatSize(buildsize)}/{PjktEventManager.SelectedProjekt.booth_requirements.MaxBuildSize})\nTry compressing your textures or meshes.\n Booth was not uploaded.", BoothErrorType.Error);
+                PjktSdkWindow.Notify($"Booth exceeds maximum build size ({BoothValidator.FormatSize(buildsize)}/{PjktEventManager.SelectedProjekt.booth_requirements.MaxBuildSize}MB)\nTry compressing your textures or meshes.\n Booth was not uploaded.", BoothErrorType.Error);
                 return;
             }
 
