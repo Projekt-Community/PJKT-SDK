@@ -444,7 +444,9 @@ namespace PJKT.SDK2
                 //check if its an allowed script from VRChat
                 string[] vrcAssets = new string[]
                 {
-                    "Packages/com.vrchat.worlds/Samples/UdonExampleScene/UdonProgramSources/AvatarPedestal Program.asset"
+                    "Packages/com.vrchat.worlds/Samples/UdonExampleScene/UdonProgramSources/AvatarPedestal Program.asset",
+                    "Packages/com.vrchat.worlds/Samples/UdonExampleScene/UdonProgramSources/DownloadString.asset",
+                    "Packages/com.vrchat.worlds/Samples/UdonExampleScene/Prefabs/VRCChair/StationGraph.asset"
                 };
 
                 List<string> allowedAssetPaths = new List<string>(Requirements.UdonWhitelist);
