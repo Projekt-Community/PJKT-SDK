@@ -2,8 +2,10 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using UnityEngine;
+
 #if UNITY_EDITOR
 using UnityEditor;
+using VRC.Udon.Common;
 #endif
 
 namespace PJKT.SDK2
@@ -124,6 +126,17 @@ namespace PJKT.SDK2
             {
                 //if the file path starts with packages ignore it
                 if (file.StartsWith("Packages")) continue;
+                
+                //if file is a script then skip it
+                if (file.EndsWith(".cs") || file.EndsWith(".cs.meta")) continue;
+                
+                //exclude udon program assets
+                if (file.EndsWith(".asset"))
+                {
+                    //if the yaml contains the phrase serializedUdonProgramAsset then skip it
+                    string yaml = File.ReadAllText(file);
+                    if (yaml.Contains("serializedUdonProgramAsset")) continue;
+                }
                 
                 string fileType = GetFileType(file);
                 string fileName = Path.GetFileName(file);
