@@ -7,7 +7,7 @@
       "version": "2.1.5"
     },
     "com.vrchat.worlds": {
-      "version": "3.5.0"
+      "version": "3.7.6"
     }
   },
   "locked": {
@@ -22,13 +22,13 @@
       }
     },
     "com.vrchat.worlds": {
-      "version": "3.5.0",
+      "version": "3.7.6",
       "dependencies": {
-        "com.vrchat.base": "3.5.0"
+        "com.vrchat.base": "3.7.6"
       }
     },
     "com.vrchat.base": {
-      "version": "3.5.0",
+      "version": "3.7.6",
       "dependencies": {}
     }
   }
