@@ -20,6 +20,12 @@ namespace PJKT.SDK2
         
         public static async Task UploadBoothAsync(BoothDescriptor boothDescriptor)
         {
+            if (!Authentication.IsLoggedIn)
+            {
+                PjktSdkWindow.Notify("You must be logged in to upload a booth.", BoothErrorType.Error);
+                return;
+            }
+            
             bool success = false;
             if (boothDescriptor == null)
             {

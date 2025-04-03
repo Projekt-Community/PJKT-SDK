@@ -16,6 +16,7 @@ namespace PJKT.SDK2
         private Button loginButton => this.Q<Button>("LoginButton");
         private Button registerButton => this.Q<Button>("RegisterButton");
         private Button forgotPasswordButton => this.Q<Button>("ResetPassButton");
+        private Button offlineModeButton => this.Q<Button>("OfflineModeButton");
         
         //im dumb so now i have to do this
         private TextField emailField => this.Query<TextField>("PjktTextInput").First();
@@ -29,6 +30,7 @@ namespace PJKT.SDK2
             loginButton.RegisterCallback<ClickEvent>(Login);
             registerButton.RegisterCallback<ClickEvent>(Register);
             forgotPasswordButton.RegisterCallback<ClickEvent>(ForgotPassword);
+            offlineModeButton.RegisterCallback<ClickEvent>(EnterOfflineMode);
             loginButton.style.cursor = SillyCursors.GetSillyCursor();
         }
 
@@ -77,6 +79,16 @@ namespace PJKT.SDK2
         {
             await Task.Delay(1000);
             loginButton.style.backgroundColor = new Color(0.345098f, 0.345098f, 0.345098f);
+        }
+
+        private void EnterOfflineMode(ClickEvent evt)
+        {
+            PjktSdkWindow window = EditorWindow.GetWindow<PjktSdkWindow>();
+            if (window != null) window.EnterGuestMode();
+            else
+            {
+                PjktSdkWindow.Notify("Failed to enter guest mode. Please try again.", BoothErrorType.Error);
+            }
         }
     }
 }

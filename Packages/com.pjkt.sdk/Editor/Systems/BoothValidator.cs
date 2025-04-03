@@ -104,7 +104,7 @@ namespace PJKT.SDK2
             List<TextureInfo> textureInfos = Report.GetStats(StatsType.Textures).ComponentList.Cast<TextureInfo>().ToList();
             List<MeshAsset> meshAssets = Report.GetStats(StatsType.Mesh).ComponentList.Cast<MeshAsset>().ToList();
             Report.Stats.Add(GetVram(textureInfos, meshAssets));
-            Report.Stats.Add(GetFileSize(textureInfos, meshes));
+            Report.Stats.Add(GetFileSize());
 
             Report.Overallranking = OverallRank(); //done :3
             
@@ -498,51 +498,32 @@ namespace PJKT.SDK2
             return new BoothStats(StatsType.Portals, ranking, "Portals: " + portals.Count + "/" + Requirements.MaxPortals, $"Max Portals: {Requirements.MaxPortals}", new List<object>(portals));
         }
 
-        private static BoothStats GetFileSize(List<TextureInfo> textures, List<Mesh> meshes)
+        private static BoothStats GetFileSize()
         {
             long sizeOnDisk = 0;
-            List<string> filePaths = new List<string>();
-            foreach (TextureInfo tex in textures)
+            
+            if (!Directory.Exists("Assets/PjktTemp")) Directory.CreateDirectory("Assets/PjktTemp");
+            
+            //temp prefab
+            string tempPrefabPath = "Assets/PjktTemp/Booth_temp.prefab";
+            PrefabUtility.SaveAsPrefabAsset(SelectedBooth.gameObject, tempPrefabPath);
+            
+            string[] dependencies = AssetDatabase.GetDependencies(tempPrefabPath);
+            
+            //get all dependencies
+            foreach (string dependency in dependencies)
             {
                 //skip built in resources
-                if (tex.importer == null) continue;
+                if (dependency.Contains("unity_builtin_extra") || dependency.Contains("unity default resources")) continue;
                 
-                //Get the path
-                string path = AssetDatabase.GetAssetPath(tex.texture);
-
-                //Check if it's a valid path
-                if (path == null || path == "") continue;
-
-                filePaths.Add(path);
+                //read file size and add to total
+                FileInfo fileInfo = new FileInfo(dependency);
+                if (fileInfo.Exists) sizeOnDisk += fileInfo.Length;
             }
             
-            foreach (Mesh mesh in meshes)
-            {
-                //Get the path
-                string path = AssetDatabase.GetAssetPath(mesh);
-
-                //Check if it's a valid path
-                if (path == null || path == "") continue;
-                filePaths.Add(path);
-            }
-
-            foreach (string path in filePaths)
-            {
-                try
-                {
-                    //Get the file info
-                    FileInfo fileInfo = new FileInfo(path);
-
-                    //Add the size to the total
-                    sizeOnDisk += fileInfo.Length;
-                }
-                #pragma warning disable CS0168
-                catch (Exception e)
-                {
-                    continue;
-                }
-                #pragma warning restore CS0168
-            }
+            //cleanup
+            if (File.Exists(tempPrefabPath)) File.Delete(tempPrefabPath);
+            AssetDatabase.Refresh();
 
             long maxFileSize = Requirements.MaxFileSize * 1024 * 1024;
             

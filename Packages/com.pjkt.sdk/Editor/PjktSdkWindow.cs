@@ -151,6 +151,26 @@ namespace PJKT.SDK2
             }
         }
 
+        //guest mode should allow people to use the sdk for testing but they wont be able to upload and if the api is down they cant even get the requirements
+        internal async void EnterGuestMode()
+        {
+            await HideLogin();
+            await HideRegister();
+            ShowContent();
+            ShowSideBar();
+
+            Notify("Entered as guest, welcome!", BoothErrorType.Info);
+        }
+        
+        internal async void ExitGuestMode()
+        {
+            await HideSideBar();
+            HideContent();
+            ShowLogin();
+                
+            Notify("Logged out successfully", BoothErrorType.Info);
+        }
+
         internal async Task ShowRegister()
         {
             await HideLogin();

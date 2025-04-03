@@ -25,11 +25,35 @@ namespace PJKT.SDK2
 
             JoinCommunityButton.RegisterCallback<ClickEvent>(JoinCommunity);
             LogoutButton.RegisterCallback<ClickEvent>(Logout);
+            
+            //if we are in guest mode then change text to exit guest mode and disable join code stuff
+            if (!Authentication.IsLoggedIn)
+            {
+                LogoutButton.text = "Exit Guest Mode";
+                LogoutButton.tooltip = "Exit guest mode and log in with your account.";
+                
+                inviteCodeInput.style.display = DisplayStyle.None;
+                JoinCommunityButton.style.display = DisplayStyle.None;
+            }
+            else
+            {
+                LogoutButton.text = "Logout";
+                LogoutButton.tooltip = "Logout of your account.";
+            }
         }
 
         private void Logout(ClickEvent evt)
         {
-            Authentication.Logout();
+            if (Authentication.IsLoggedIn)
+            {
+                Authentication.Logout();
+                return;
+            }
+            else //guest mode
+            {
+                PjktSdkWindow window = EditorWindow.GetWindow<PjktSdkWindow>();
+                if (window != null) window.ExitGuestMode();
+            }
         }
 
         private async void JoinCommunity(ClickEvent evt)

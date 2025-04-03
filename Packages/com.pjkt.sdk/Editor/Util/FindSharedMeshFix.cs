@@ -28,7 +28,7 @@ namespace PJKT.SDK2
                 MeshFilter[] filters = boothDescriptor.gameObject.GetComponentsInChildren<MeshFilter>();
                 if (filters.Length == 0)
                 {
-                    Debug.LogWarning("No renderers found for " + boothDescriptor.gameObject.name);
+                    //Debug.LogWarning("No renderers found for " + boothDescriptor.gameObject.name);
                     continue;
                 }
                 
