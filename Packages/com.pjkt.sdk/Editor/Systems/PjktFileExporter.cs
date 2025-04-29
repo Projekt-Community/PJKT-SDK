@@ -55,8 +55,12 @@ namespace PJKT.SDK2
             //create temp directories for the booth files
             CreateTempfolders(CommunityName);
             
+            //using a duplicate of the booth so we can zero out the xz pos and unlink any other prefabs
+            GameObject tempBooth = GameObject.Instantiate(booth, new Vector3(0, booth.transform.position.y, 0), booth.transform.rotation);
+            FindAndUnpackPrefabInstances(tempBooth);
+            
             //create the prefab
-            PrefabUtility.SaveAsPrefabAsset(booth, path);
+            PrefabUtility.SaveAsPrefabAsset(tempBooth, path);
 
             //get all dependedncies of the prefab
             string[] dependencies = AssetDatabase.GetDependencies(path);
@@ -71,10 +75,29 @@ namespace PJKT.SDK2
             ZipFile.CreateFromDirectory(TempDirectory, zipPath);
             
             //cleanup the prefab
+            GameObject.DestroyImmediate(tempBooth);
             if (File.Exists(path)) File.Delete(path);
 
             if (File.Exists(zipPath)) return zipPath;
             return string.Empty;
+        }
+
+        private void FindAndUnpackPrefabInstances(GameObject booth)
+        {
+            foreach (Transform child in booth.transform)
+            {
+                //check the booth itself
+                if (PrefabUtility.IsPartOfPrefabInstance(booth))
+                {
+                    PrefabUtility.UnpackPrefabInstance(booth, PrefabUnpackMode.Completely, InteractionMode.UserAction);
+                }
+                
+                //check child objects
+                if (PrefabUtility.IsPartOfPrefabInstance(child.gameObject))
+                {
+                    PrefabUtility.UnpackPrefabInstance(child.gameObject, PrefabUnpackMode.Completely, InteractionMode.UserAction);
+                }
+            }
         }
         
         //uses %localappdata%\Temp\PjktSdk\communityName to store the files
