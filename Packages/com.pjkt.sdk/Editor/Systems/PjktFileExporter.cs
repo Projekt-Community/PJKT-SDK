@@ -190,6 +190,7 @@ namespace PJKT.SDK2
                                          $"Do you want to continue anyways?";
                         if (!EditorUtility.DisplayDialog("Duplicate File", message, "Yolo", "Cancel"))
                         {
+                            Debug.LogWarning($"<color=#FFBB00><b>PJKT SDK:</b></color> Duplicate Files: \n {newFilePath} \n {file}");
                             return false;
                         }
                     }
