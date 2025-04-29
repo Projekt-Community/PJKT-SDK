@@ -66,7 +66,14 @@ namespace PJKT.SDK2
             string[] dependencies = AssetDatabase.GetDependencies(path);
             
             //sorts duplicated of the files into temp appdata folder
-            SortFiles(dependencies);
+            if (!SortFiles(dependencies))
+            {
+                PjktSdkWindow.Notify("Booth upload canceled", BoothErrorType.Warning);
+                //cleanup the prefab
+                GameObject.DestroyImmediate(tempBooth);
+                if (File.Exists(path)) File.Delete(path);
+                return string.Empty;
+            }
             
             //do community and booth info json here
             
@@ -139,7 +146,7 @@ namespace PJKT.SDK2
         }
         
         //sorts the files into correct folders in the temp appdata folder
-        private void SortFiles(string[] files)
+        private bool SortFiles(string[] files)
         {
             //chat is dir real?
             if (!Directory.Exists(TempDirectory)) throw new Exception("Temp Directory does not exist");
@@ -173,6 +180,20 @@ namespace PJKT.SDK2
                 //rename if duplicate name
                 if (File.Exists(newFilePath))
                 {
+                    //auto rename shaders because poiyomi is being difficult
+                    if (Path.GetExtension(newFilePath) != ".shader")
+                    {
+                        //for eveything else warn them
+                        string message = $"File exist with the same name, this will cause conflicts and may break your booth. You should rename one of the files.\n" +
+                                         $"File: {newFilePath} \n" +
+                                         $"File: {file} \n" +
+                                         $"Do you want to continue anyways?";
+                        if (!EditorUtility.DisplayDialog("Duplicate File", message, "Yolo", "Cancel"))
+                        {
+                            return false;
+                        }
+                    }
+                    
                     string newFilename = Path.GetFileNameWithoutExtension(newFilePath) + $"_{Guid.NewGuid()}" + Path.GetExtension(newFilePath);
                     newFilePath = $"{TempDirectory}\\{fileType}\\{newFilename}";
                 }
@@ -180,6 +201,8 @@ namespace PJKT.SDK2
                 File.Copy(file, newFilePath);
                 File.Copy(metaFile, newFilePath + ".meta");
             }
+
+            return true;
         }
 
         //figures out what folder the file is supposed to go in

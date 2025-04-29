@@ -58,6 +58,7 @@ namespace PJKT.SDK2
             {
                 //failed to create zip for some reason
                 PjktSdkWindow.Notify($"Failed to create booth package. Ask for help on the discord.", BoothErrorType.Error);
+                CleanupOperations(boothDescriptor);
                 return;
             }
             
