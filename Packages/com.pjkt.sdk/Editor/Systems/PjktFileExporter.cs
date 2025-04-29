@@ -169,8 +169,16 @@ namespace PJKT.SDK2
                 string metaFile = file + ".meta";
                 
                 //copy the file to the new location
-                File.Copy(file, newFilePath, true);
-                File.Copy(metaFile, newFilePath + ".meta", true);
+                
+                //rename if duplicate name
+                if (File.Exists(newFilePath))
+                {
+                    string newFilename = Path.GetFileNameWithoutExtension(newFilePath) + $"_{Guid.NewGuid()}" + Path.GetExtension(newFilePath);
+                    newFilePath = $"{TempDirectory}\\{fileType}\\{newFilename}";
+                }
+                
+                File.Copy(file, newFilePath);
+                File.Copy(metaFile, newFilePath + ".meta");
             }
         }
 
