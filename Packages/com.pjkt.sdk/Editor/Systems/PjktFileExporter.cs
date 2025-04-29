@@ -43,7 +43,7 @@ namespace PJKT.SDK2
             }
             
             //create prefab of the booth first
-            string boothName = CommunityName + "_" + booth.name;
+            string boothName = CommunityName + "_" + PjktEventManager.SelectedProjekt.name;
             string path = "Assets/PjktTemp/" + boothName + ".prefab";
             
             //check if the directory exists
