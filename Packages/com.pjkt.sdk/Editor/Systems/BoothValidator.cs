@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -145,7 +145,8 @@ namespace PJKT.SDK2
             Vector3 max = renderers[0].bounds.max;
 
             //Get bounds of all renderers
-            foreach (Renderer renderer in renderers) {
+            foreach (Renderer renderer in renderers)
+            {
                 Bounds bounds = renderer.bounds;
                 min = Vector3.Min(min, bounds.min);
                 max = Vector3.Max(max, bounds.max);
@@ -153,14 +154,14 @@ namespace PJKT.SDK2
 
             Vector3 size = max - min;
 
+            //Round up to 1 decimal place
+            size.x = Mathf.Floor(size.x * 10) / 10;
+            size.y = Mathf.Floor(size.y * 10) / 10;
+            size.z = Mathf.Floor(size.z * 10) / 10;
+
             //bool pass;
             if (size.x > dims.x || size.y > dims.y || size.z > dims.z) ranking = BoothPerformanceRanking.Bad;
             else ranking = BoothPerformanceRanking.Good;
-
-            //Round up to 1 decimal place
-            size.x = Mathf.Ceil(size.x * 10) / 10;
-            size.y = Mathf.Ceil(size.y * 10) / 10;
-            size.z = Mathf.Ceil(size.z * 10) / 10;
 
             //Return size to 1 decimal place
             string boundsString = "Bounds: " + size.x.ToString("0.0") + " x " + size.y.ToString("0.0") + " x " + size.z.ToString("0.0") + " (max " + Mathf.Max(maxDims.x, maxDims.y, maxDims.z).ToString("0.0") + ")";
