@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
-using Firebase;
-using Firebase.Auth;
 using UnityEngine;
+
 
 namespace PJKT.SDK2.NET
 {
@@ -21,35 +21,107 @@ namespace PJKT.SDK2.NET
             private set
             {
                 _isLoggedIn = value;
-                //Debug.Log("login status changed");
-
                 OnLoginStatusChanged(null, EventArgs.Empty);
             }
         }
-        
-        //handles notifying of login status
-        public static event EventHandler OnLoginStatusChanged = delegate {  };
-        
-        //Firebase variables
-        private const string AppOptionsPath = "Packages/com.pjkt.sdk/Editor/Firebase/google-services.json";
-        //private const string devAppOptionsPath = "Packages/com.pjkt.sdk/Editor/Firebase/google-services_dev.json";
+
+        public static event EventHandler OnLoginStatusChanged = delegate { };
+
+        // Firebase REST API constants
+        private const string FirebaseApiKey = "AIzaSyBZ5WdA9BbZUMAtlKxKKN-8579f2_AQucI";
+        private const string FirebaseSignUpEndpoint = "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=";
+        private const string FirebaseSignInEndpoint = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=";
+        private const string FirebaseSendOobCodeEndpoint = "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=";
+
+        private static readonly HttpClient httpClient = new HttpClient();
         private static readonly string accountDataPath = Application.persistentDataPath + "/Projekt Community/UnityEditor/";
-        private readonly static FirebaseApp app; //Readonly
-        private readonly static FirebaseAuth auth; //Readonly
-        private static FirebaseUser previousUser;
-        
+
         internal static string PjktCookie = "";
-        //internal static string communityName = "";
-        internal static bool isAuthorized { get { return auth != null && auth.CurrentUser != null; } }
-        internal static string token { get; private set; }
-        
+        internal static bool isAuthorized { get { return ActiveUser != null && !string.IsNullOrEmpty(PjktCookie); } } // Auth Check
+        internal static string token { get; private set; } // This will be the Firebase ID token
+
+        // Static constructor: Removed Firebase SDK initialization
         static Authentication()
         {
-            //Firebase initialization
-            string AppOptionsJsonString = File.ReadAllText(AppOptionsPath);
-            AppOptions appOptions = AppOptions.LoadFromJsonConfig(AppOptionsJsonString);
-            app = FirebaseApp.Create(appOptions, "pjkt-sdk");
-            auth = FirebaseAuth.GetAuth(app);
+            // Just here, to follow firebase SDK pattern stuff
+        }
+
+        #region Firebase REST API Helper Classes
+        [System.Serializable]
+        private class FirebaseSignUpRequest
+        {
+            public string email;
+            public string password;
+            public bool returnSecureToken = true;
+        }
+
+        [System.Serializable]
+        private class FirebaseSignInPasswordRequest
+        {
+            public string email;
+            public string password;
+            public bool returnSecureToken = true;
+        }
+
+        [System.Serializable]
+        private class FirebaseTokenResponse
+        {
+            public string kind;
+            public string idToken; // Firebase ID token
+            public string email;
+            public string refreshToken;
+            public string expiresIn;
+            public string localId; // User UID
+            public bool registered; 
+        }
+
+        [System.Serializable]
+        private class FirebaseSendOobCodeRequest
+        {
+            public string requestType;
+            public string email;
+        }
+        
+        [System.Serializable]
+        private class FirebaseErrorContainer
+        {
+            public FirebaseError error;
+        }
+
+        [System.Serializable]
+        private class FirebaseError
+        {
+            public int code;
+            public string message;
+            // public List<FirebaseErrorDetail> errors;
+        }
+        /*
+        [System.Serializable]
+        private class FirebaseErrorDetail
+        {
+            public string message;
+            public string domain;
+            public string reason;
+        }
+        */
+        #endregion
+
+        private static async Task<string> ParseFirebaseError(HttpResponseMessage response)
+        {
+            string errorContent = await response.Content.ReadAsStringAsync();
+            try
+            {
+                FirebaseErrorContainer errorContainer = JsonUtility.FromJson<FirebaseErrorContainer>(errorContent);
+                if (errorContainer != null && errorContainer.error != null)
+                {
+                    return $"Firebase Error: {errorContainer.error.message} (Code: {errorContainer.error.code})";
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to parse Firebase error JSON: {ex.Message}. Raw error: {errorContent}");
+            }
+            return $"HTTP Error {response.StatusCode}. Details: {errorContent}";
         }
 
         internal static async Task TryResumeSession()
@@ -70,205 +142,260 @@ namespace PJKT.SDK2.NET
                 }
             }
             else return;
-            
-            //check if the session is still valid
+
             bool sessionValid = await GetActiveUserInfo();
-            
+
             if (!sessionValid)
             {
                 PjktSdkWindow.Notify("Session is invalid, please log in again.", BoothErrorType.Error);
                 Logout();
                 return;
             }
-                
+
             IsLoggedIn = true;
         }
 
         internal static async Task<bool> GetActiveUserInfo()
         {
-            //Debug.Log($"Getting user info. PJKT Cookie: {PjktCookie}");
-            
-            //check pjkt
             if (PjktCookie == "") return false;
             string response = await PJKTNet.RequestMessage("/me");
-            
-            //Debug.Log($"get user info response: {response}");
+
             if (string.IsNullOrEmpty(response)) return false;
-            
             if (response.Contains("Unauthorized! Verification Failed")) return false;
-            
-            //deserilize the json
+
             try { ActiveUser = JsonUtility.FromJson<PjktActiveUser>(response); }
-            catch {return false;}
+            catch { return false; }
 
-            //Debug.Log("Found user info:" + ActiveUser.user.username);
-
-            return true;
+            return ActiveUser != null;
         }
-        
-        
 
         internal static async Task Register(string userName, string email, string password, string inviteCode)
         {
-            AuthResult result;
-            try {result = await auth.CreateUserWithEmailAndPasswordAsync(email, password); }
-            catch (Exception e)
+            FirebaseSignUpRequest requestPayload = new FirebaseSignUpRequest { email = email, password = password };
+            string jsonPayload = JsonUtility.ToJson(requestPayload);
+            StringContent content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+            
+            HttpResponseMessage response;
+            try
             {
-                PjktSdkWindow.Notify($"Register failed, please try again \n {e}", BoothErrorType.Error);
+                response = await httpClient.PostAsync(FirebaseSignUpEndpoint + FirebaseApiKey, content);
+            }
+            catch (HttpRequestException e)
+            {
+                PjktSdkWindow.Notify($"Register failed due to network issue: {e.Message}", BoothErrorType.Error);
                 return;
             }
-                
-            //get the token
-            token = await auth.CurrentUser.TokenAsync(false);
 
-            //create pjkt account
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorMsg = await ParseFirebaseError(response);
+                PjktSdkWindow.Notify($"Register failed: {errorMsg}", BoothErrorType.Error);
+                return;
+            }
+
+            string responseJson = await response.Content.ReadAsStringAsync();
+            FirebaseTokenResponse tokenResponse = JsonUtility.FromJson<FirebaseTokenResponse>(responseJson);
+            
+            if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.idToken))
+            {
+                PjktSdkWindow.Notify("Register failed: Could not get token from Firebase.", BoothErrorType.Error);
+                return;
+            }
+            token = tokenResponse.idToken;
+
+            // Create PJKT account
             PJKTAccountCreationMessage accountCreationMessage = new PJKTAccountCreationMessage(userName, inviteCode, token);
             HttpResponseMessage accountCreationResponse = await PJKTNet.SendMessage(accountCreationMessage);
-                
-            IEnumerable<string> cookieHeaders;
+
             if (accountCreationResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                //get the session token
+                IEnumerable<string> cookieHeaders;
                 if (accountCreationResponse.Headers.TryGetValues("set-cookie", out cookieHeaders))
                 {
                     string[] headerdata = cookieHeaders.FirstOrDefault().Split(';');
                     string cookie = headerdata[0];
-
                     PjktCookie = cookie.Substring(8);
                 }
                 else
                 {
-                    PjktSdkWindow.Notify("Unable to create account.\n" + accountCreationResponse.StatusCode, BoothErrorType.Error);
-                    auth.SignOut();
+                    PjktSdkWindow.Notify("Unable to create PJKT account: Missing session cookie.", BoothErrorType.Error);
+                    // Potentially sign out/clear Firebase token if partial registration is an issue
                     return;
                 }
 
-                //save session information
                 PjktSessionInfo session = new PjktSessionInfo(PjktCookie);
-                string savedSEssionData = JsonUtility.ToJson(session);
+                string savedSessionData = JsonUtility.ToJson(session);
                 if (!Directory.Exists(accountDataPath)) Directory.CreateDirectory(accountDataPath);
-                File.WriteAllText(accountDataPath + "SessionData.pjkt", savedSEssionData);
+                File.WriteAllText(accountDataPath + "SessionData.pjkt", savedSessionData);
 
                 bool foundProfile = await GetActiveUserInfo();
-                
                 if (!foundProfile)
                 {
-                    PjktSdkWindow.Notify("Account created successfully, but error getting profile info. Try logging in", BoothErrorType.Error);
-                    Logout();
+                    PjktSdkWindow.Notify("Account created, but error getting profile. Try logging in.", BoothErrorType.Warning);
+                    Logout(); // Clears local session data
                     return;
                 }
-                
                 PjktSdkWindow.Notify("Account created successfully!", BoothErrorType.Info);
                 IsLoggedIn = true;
             }
+            else
+            {
+                 string pjktError = await accountCreationResponse.Content.ReadAsStringAsync();
+                 PjktSdkWindow.Notify($"Failed to create PJKT account: {accountCreationResponse.ReasonPhrase} - {pjktError}", BoothErrorType.Error);
+            }
         }
-        
+
         internal static async Task Login(string email, string password)
         {
-            AuthResult result;
-            try {result = await auth.SignInWithEmailAndPasswordAsync(email, password); }
-            catch (Exception e)
+            FirebaseSignInPasswordRequest requestPayload = new FirebaseSignInPasswordRequest { email = email, password = password };
+            string jsonPayload = JsonUtility.ToJson(requestPayload);
+            StringContent content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response;
+            try
             {
-                PjktSdkWindow.Notify($"Login failed, please try again \n {e}", BoothErrorType.Error);
+                response = await httpClient.PostAsync(FirebaseSignInEndpoint + FirebaseApiKey, content);
+            }
+            catch (HttpRequestException e)
+            {
+                PjktSdkWindow.Notify($"Login failed due to network issue: {e.Message}", BoothErrorType.Error);
                 return;
             }
-                
-            if (!isAuthorized)
+
+            if (!response.IsSuccessStatusCode)
             {
-                PjktSdkWindow.Notify("Login failed, please try again", BoothErrorType.Error);
+                string errorMsg = await ParseFirebaseError(response);
+                PjktSdkWindow.Notify($"Login failed: {errorMsg}", BoothErrorType.Error);
                 return;
             }
-                
-            //get the token
-            token = await auth.CurrentUser.TokenAsync(false);
             
-            PJKTLoginMessage message = new PJKTLoginMessage();
+            string responseJson = await response.Content.ReadAsStringAsync();
+            FirebaseTokenResponse tokenResponse = JsonUtility.FromJson<FirebaseTokenResponse>(responseJson);
+
+            if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.idToken))
+            {
+                PjktSdkWindow.Notify("Login failed: Could not get token from Firebase.", BoothErrorType.Error);
+                return;
+            }
+            token = tokenResponse.idToken; // Store Firebase ID token
+
+            // Create PJKT login message for cookie stuff
+            PJKTLoginMessage message = new PJKTLoginMessage(); 
             HttpResponseMessage pjktNetResponse = await PJKTNet.SendMessage(message);
 
             IEnumerable<string> cookieHeaders;
-                
-            //get the session token
-            if (pjktNetResponse.Headers.TryGetValues("set-cookie", out  cookieHeaders))
+            if (pjktNetResponse.IsSuccessStatusCode && pjktNetResponse.Headers.TryGetValues("set-cookie", out cookieHeaders))
             {
                 string[] headerdata = cookieHeaders.FirstOrDefault().Split(';');
                 string cookie = headerdata[0];
-                
                 PjktCookie = cookie.Substring(8);
             }
             else
             {
-                PjktSdkWindow.Notify("Unable to login to PJKT Services, try restarting unity?", BoothErrorType.Error);
-                auth.SignOut();
+                string pjktError = await pjktNetResponse.Content.ReadAsStringAsync();
+                PjktSdkWindow.Notify($"Unable to login to PJKT Services: {pjktNetResponse.ReasonPhrase} - {pjktError}", BoothErrorType.Error);
+                token = null;
                 return;
             }
             
-            
-            //save session information
             PjktSessionInfo session = new PjktSessionInfo(PjktCookie);
-            string savedSEssionData = JsonUtility.ToJson(session);
+            string savedSessionData = JsonUtility.ToJson(session);
             if (!Directory.Exists(accountDataPath)) Directory.CreateDirectory(accountDataPath);
-            File.WriteAllText(accountDataPath + "SessionData.pjkt", savedSEssionData);
-            
-            bool foundProfile = await GetActiveUserInfo();  Debug.Log(foundProfile);
-            
+            File.WriteAllText(accountDataPath + "SessionData.pjkt", savedSessionData);
+
+            bool foundProfile = await GetActiveUserInfo();
             if (!foundProfile)
             {
-                PjktSdkWindow.Notify("Error getting profile info. Try logging in again", BoothErrorType.Error);
+                PjktSdkWindow.Notify("Logged in, but error getting profile info. Try again or relog.", BoothErrorType.Warning);
                 Logout();
                 return;
             }
             
             IsLoggedIn = true;
+            PjktSdkWindow.Notify("Login successful!", BoothErrorType.Info); // Tada! (maybe)
         }
 
         public static async void Logout()
         {
-            auth.SignOut();
             
-            PJKTLogoutMessage message = new PJKTLogoutMessage();
-            await PJKTNet.SendMessage(message);
+            token = null;
 
-            //delete the session data
+            // Call PJKT API to log out
+            PJKTLogoutMessage message = new PJKTLogoutMessage();
+            try 
+            {
+                await PJKTNet.SendMessage(message);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Error during PJKT logout: {e.Message}");
+            }
+
+
             if (File.Exists(accountDataPath + "SessionData.pjkt"))
             {
                 File.Delete(accountDataPath + "SessionData.pjkt");
             }
             PjktCookie = "";
+            ActiveUser = null; // Clear active user
             IsLoggedIn = false;
+            PjktSdkWindow.Notify("Logged out.", BoothErrorType.Info);
         }
-        
+
         public static async void ResetPassword(string email)
         {
-            await auth.SendPasswordResetEmailAsync(email);
+            FirebaseSendOobCodeRequest requestPayload = new FirebaseSendOobCodeRequest { requestType = "PASSWORD_RESET", email = email };
+            string jsonPayload = JsonUtility.ToJson(requestPayload);
+            StringContent content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response;
+            try
+            {
+                response = await httpClient.PostAsync(FirebaseSendOobCodeEndpoint + FirebaseApiKey, content);
+            }
+            catch (HttpRequestException e)
+            {
+                PjktSdkWindow.Notify($"Password reset failed due to network issue: {e.Message}", BoothErrorType.Error);
+                return;
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorMsg = await ParseFirebaseError(response);
+                PjktSdkWindow.Notify($"Password reset failed: {errorMsg}", BoothErrorType.Error);
+                return;
+            }
             
-            PjktSdkWindow.Notify("Password reset email sent", BoothErrorType.Info);
+            PjktSdkWindow.Notify("Password reset email sent. Please check your inbox.", BoothErrorType.Info);
         }
-        
+
         public static async void JoinCommunity(string inviteCode)
         {
             PJKTJoinCommunityMessage joinCommunityMessage = new PJKTJoinCommunityMessage(inviteCode);
-            HttpResponseMessage resposnse = await PJKTNet.SendMessage(joinCommunityMessage);
-            
-            if (resposnse.StatusCode != System.Net.HttpStatusCode.OK)
+            HttpResponseMessage response = await PJKTNet.SendMessage(joinCommunityMessage); 
+
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                PjktSdkWindow.Notify("Unable to join community", BoothErrorType.Error);
+                string errorBody = await response.Content.ReadAsStringAsync();
+                PjktSdkWindow.Notify($"Unable to join community: {response.ReasonPhrase} - {errorBody}", BoothErrorType.Error);
                 return;
             }
 
             bool refreshUser = await GetActiveUserInfo();
             if (!refreshUser)
             {
-                PjktSdkWindow.Notify("Unable to Get user profile but community may still have been added. Try logging out and back in", BoothErrorType.Error);
+                PjktSdkWindow.Notify("Community joined, but unable to refresh user profile. Try logging out and back in.", BoothErrorType.Warning);
                 return;
             }
             
             PjktSdkWindow.Notify("Community joined successfully!", BoothErrorType.Info);
         }
     }
+
     [Serializable]
     internal class PjktSessionInfo
     {
-        public string SessionToken;
+        public string SessionToken; // This is the muchy cookie content
 
         public PjktSessionInfo(string sessionToken)
         {
