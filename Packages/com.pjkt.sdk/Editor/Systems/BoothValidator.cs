@@ -170,13 +170,27 @@ namespace PJKT.SDK2
         private static BoothStats GetTriangles(List<Mesh> meshes)
         {
             long triangles = 0;
+            bool meshReadWriteDisabled = false;
             foreach (Mesh mesh in meshes)
             {
+                if (!mesh.isReadable)
+                {
+                    meshReadWriteDisabled = true;
+                    continue;
+                }
                 triangles += mesh.triangles.Length / 3;
             }
-            
+
             BoothPerformanceRanking ranking = triangles == Requirements.MaxTriangles ? BoothPerformanceRanking.Ok : triangles > Requirements.MaxTriangles ? BoothPerformanceRanking.Bad : BoothPerformanceRanking.Good;
-            return new BoothStats(StatsType.TriCount, ranking, "Total Triangles: " + triangles + "/" + Requirements.MaxTriangles, $"Max Triangles: {Requirements.MaxTriangles}", new List<object>(meshes));
+            string detailsString = "Total Triangles: " + triangles + "/" + Requirements.MaxTriangles;
+            if (meshReadWriteDisabled)
+            {
+                ranking = BoothPerformanceRanking.Error;
+                detailsString += " (Some meshes have Read/Write disabled)";
+            }
+            
+            
+            return new BoothStats(StatsType.TriCount, ranking, detailsString, $"Max Triangles: {Requirements.MaxTriangles}", new List<object>(meshes));
         }
         private static BoothStats GetStaticMeshes(List<MeshFilter> staticMeshes)
         {
@@ -434,7 +448,7 @@ namespace PJKT.SDK2
                         ProgramSource = "No program source found",
                         SyncType = behaviour.SyncMethod,
                     });
-                    disallowedScripts = true;
+                    //disallowedScripts = true;
                     continue;
                 }
 
@@ -462,7 +476,7 @@ namespace PJKT.SDK2
                     }
                 }
                 
-                if (!allowed) disallowedScripts = true;
+                //if (!allowed) disallowedScripts = true;
                 behaviourinfos.Add(new UdonInfo()
                 {
                     Behaviour = behaviour,
@@ -500,7 +514,7 @@ namespace PJKT.SDK2
 
         private static BoothStats GetFileSize()
         {
-            long sizeOnDisk = 0;
+            long sizeOnDisk = 0; 
             
             if (!Directory.Exists("Assets/PjktTemp")) Directory.CreateDirectory("Assets/PjktTemp");
             
@@ -523,6 +537,7 @@ namespace PJKT.SDK2
             
             //cleanup
             if (File.Exists(tempPrefabPath)) File.Delete(tempPrefabPath);
+            if (File.Exists(tempPrefabPath + ".meta")) File.Delete(tempPrefabPath + ".meta");
             AssetDatabase.Refresh();
 
             long maxFileSize = Requirements.MaxFileSize * 1024 * 1024;

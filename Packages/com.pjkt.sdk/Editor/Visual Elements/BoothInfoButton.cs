@@ -76,6 +76,15 @@ namespace PJKT.SDK2
                 boothIssues.Add(new BoothError("Select the event you want to upload for first.", BoothErrorType.Warning));
                 return;
             }
+            
+            //make sure a community is selected first
+            if (string.IsNullOrEmpty(booth.currentCommunity))
+            {
+                uploadButton.SetEnabled(false);
+                uploadButton.text = "Select a community to upload for";
+                boothIssues.Add(new BoothError("Please select a community for this booth in the Booth Descriptor component.", BoothErrorType.Warning));
+                return;
+            }
 
             //make error message for stuff over the performance limits
             foreach (BoothStats stats in BoothValidator.Report.Stats)

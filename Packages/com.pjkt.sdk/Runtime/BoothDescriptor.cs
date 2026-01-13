@@ -9,8 +9,9 @@ namespace PJKT.SDK2
     {
         public string boothName { get { return gameObject.name;}}
         public bool showBounds = true;
-        public string currentCommunity = "None";
+        public string currentCommunity;
         public string GroupID = "grp_";
+        public string[] representitives = new string[3];
         public static Vector3 _maxBounds = new Vector3(5, 5, 5);
         public string SDKVersion = "Unknown";
         private static float _margin = 0.1f;

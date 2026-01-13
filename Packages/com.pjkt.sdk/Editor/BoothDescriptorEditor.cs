@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using PJKT.SDK2.NET;
 using UnityEditor;
 using UnityEngine;
@@ -23,6 +24,12 @@ namespace PJKT.SDK2
         //community options
         private Label currentCommunity;
         private VisualElement communityOptions;
+        private List<string> communityNames = new List<string>();
+        
+        //reps
+        private TextField rep1;
+        private TextField rep2;
+        private TextField rep3;
         
         public override VisualElement CreateInspectorGUI()
         {
@@ -45,14 +52,35 @@ namespace PJKT.SDK2
             groupID.RegisterValueChangedCallback(UpdateGroupID);
             groupID.value = serializedObject.FindProperty("GroupID").stringValue;
             
+            rep1 = clone.Q<TextField>("Rep1_Input");
+            rep1.RegisterValueChangedCallback(evt => UpdateRepresentitives(evt, 0));
+            rep1.value = serializedObject.FindProperty("representitives").GetArrayElementAtIndex(0).stringValue;
+            rep2 = clone.Q<TextField>("Rep2_Input");
+            rep2.RegisterValueChangedCallback(evt => UpdateRepresentitives(evt, 1));
+            rep2.value = serializedObject.FindProperty("representitives").GetArrayElementAtIndex(1).stringValue;
+            rep3 = clone.Q<TextField>("Rep3_Input");
+            rep3.RegisterValueChangedCallback(evt => UpdateRepresentitives(evt, 2));
+            rep3.value = serializedObject.FindProperty("representitives").GetArrayElementAtIndex(2).stringValue;
+            
             currentCommunity = clone.Q<Label>("CurrentOption");
-            currentCommunity.text = serializedObject.FindProperty("currentCommunity").stringValue;
+            SerializedProperty currentCommunityProp = serializedObject.FindProperty("currentCommunity");
+            currentCommunity.text = currentCommunityProp.stringValue;
             
             communityOptions = clone.Q<VisualElement>("CommunityOptions");
             currentCommunity.RegisterCallback<ClickEvent>(ShowCommunities);
             communityOptions.RegisterCallback<MouseLeaveEvent>(HideCommunityOptions);
             
             FillCommunities();
+            if (string.IsNullOrEmpty(currentCommunityProp.stringValue))
+            {
+                //try to autofill with first item in list
+                if (communityNames.Count > 0)
+                {
+                    currentCommunity.text = communityNames[0];
+                    currentCommunityProp.stringValue = communityNames[0];
+                    serializedObject.ApplyModifiedProperties();
+                }
+            }
             
             return clone;
         }
@@ -62,6 +90,14 @@ namespace PJKT.SDK2
             serializedObject.FindProperty("GroupID").stringValue = groupID.value;
             serializedObject.ApplyModifiedProperties();
         }
+        
+        private void UpdateRepresentitives(ChangeEvent<string> evt, int repNumber)
+        {
+            SerializedProperty repsProp = serializedObject.FindProperty("representitives");
+            if (repNumber < 0 || repNumber >= repsProp.arraySize) return;
+            repsProp.GetArrayElementAtIndex(repNumber).stringValue = evt.newValue;
+            serializedObject.ApplyModifiedProperties();
+        }
 
         private void FillCommunities()
         {
@@ -69,6 +105,7 @@ namespace PJKT.SDK2
             
             //destroy all children in the community options
             communityOptions.Clear();
+            communityNames.Clear();
             
             //clone the current community option for each community in the list
             foreach (var community in Authentication.ActiveUser.communityMemberships)
@@ -78,6 +115,7 @@ namespace PJKT.SDK2
 
                 communityOption.RegisterCallback<ClickEvent>(ChangeCommunity);
                 communityOptions.Add(communityOption);
+                communityNames.Add(community.community.name);
             }
         }
         
