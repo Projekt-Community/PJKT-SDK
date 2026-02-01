@@ -127,7 +127,7 @@ namespace PJKT.SDK2
         private static BoothStats GetBounds(List<Renderer> renderers)
         { 
             //Override the max dims with the margin
-            Vector3 maxDims = new Vector3(Requirements.MaxDims[0], Requirements.MaxDims[2], Requirements.MaxDims[1]);
+            Vector3 maxDims = new Vector3(Requirements.MaxDims[0], Requirements.MaxDims[1], Requirements.MaxDims[2]);
             Vector3 dims = maxDims + (Vector3.one * Requirements.MaxDimsMargin);
             
             string reqs = $"Max Bounds: {maxDims.ToString()}";
@@ -145,7 +145,8 @@ namespace PJKT.SDK2
             Vector3 max = renderers[0].bounds.max;
 
             //Get bounds of all renderers
-            foreach (Renderer renderer in renderers) {
+            foreach (Renderer renderer in renderers) 
+            {
                 Bounds bounds = renderer.bounds;
                 min = Vector3.Min(min, bounds.min);
                 max = Vector3.Max(max, bounds.max);
@@ -153,14 +154,14 @@ namespace PJKT.SDK2
 
             Vector3 size = max - min;
 
-            //bool pass;
-            if (size.x > dims.x || size.y > dims.y || size.z > dims.z) ranking = BoothPerformanceRanking.Bad;
-            else ranking = BoothPerformanceRanking.Good;
-
             //Round up to 1 decimal place
             size.x = Mathf.Ceil(size.x * 10) / 10;
             size.y = Mathf.Ceil(size.y * 10) / 10;
             size.z = Mathf.Ceil(size.z * 10) / 10;
+            
+            //bool pass;
+            if (size.x > dims.x || size.y > dims.y || size.z > dims.z) ranking = BoothPerformanceRanking.Bad;
+            else ranking = BoothPerformanceRanking.Good;
 
             //Return size to 1 decimal place
             string boundsString = "Bounds: " + size.x.ToString("0.0") + " x " + size.y.ToString("0.0") + " x " + size.z.ToString("0.0") + " (max " + Mathf.Max(maxDims.x, maxDims.y, maxDims.z).ToString("0.0") + ")";
