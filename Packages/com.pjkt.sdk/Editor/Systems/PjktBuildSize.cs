@@ -50,8 +50,11 @@ namespace PJKT.SDK2
         public static long AssessBuildSize(BoothDescriptor booth)
         {
             //prolly need to do some sort of editor lock or progress bar here
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+            string cleanCommunityName = string.Join("_",booth.currentCommunity.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
+            
             string tempFilePath = Path.GetTempPath() + "PjktSdk\\";
-            string prefabPath = "Assets/PjktTemp/" + booth.currentCommunity + "_BuildSizeTemp.prefab";
+            string prefabPath = "Assets/PjktTemp/" + cleanCommunityName + "_BuildSizeTemp.prefab";
             
             AssetBundleManifest manifest = null;
             
@@ -75,7 +78,7 @@ namespace PJKT.SDK2
 
                 AssetBundleBuild build = new AssetBundleBuild
                 {
-                    assetBundleName = $"{booth.currentCommunity}_BuildSizeTemp",
+                    assetBundleName = $"{cleanCommunityName}_BuildSizeTemp",
                     assetNames = new[] { prefabPath }
                 };
 
@@ -88,9 +91,9 @@ namespace PJKT.SDK2
 
             if (manifest == null) return -1;
             
-            if (!File.Exists(tempFilePath + $"{booth.currentCommunity}_BuildSizeTemp")) return -1;
+            if (!File.Exists(tempFilePath + $"{cleanCommunityName}_BuildSizeTemp")) return -1;
                 
-            FileInfo fileInfo = new FileInfo(tempFilePath + $"{booth.currentCommunity}_BuildSizeTemp");
+            FileInfo fileInfo = new FileInfo(tempFilePath + $"{cleanCommunityName}_BuildSizeTemp");
             long builtSize = fileInfo.Length;
             
             //get rid of temp prefab

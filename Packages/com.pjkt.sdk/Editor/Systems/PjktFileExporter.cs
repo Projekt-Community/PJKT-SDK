@@ -30,8 +30,12 @@ namespace PJKT.SDK2
         
         public PjktFileExporter(string  communityName)
         {
-            CommunityName = communityName;
-            TempDirectory = Path.GetTempPath() + "PjktSdk\\" + communityName;
+            //sanitise community name. disallow < > : " / \ | ? *
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+            string cleanName = string.Join("_", communityName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
+            
+            CommunityName = cleanName;
+            TempDirectory = Path.GetTempPath() + "PjktSdk\\" + CommunityName;
         }
         
         public string CreateBoothfile(GameObject booth)
