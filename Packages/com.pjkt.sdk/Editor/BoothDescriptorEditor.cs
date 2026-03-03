@@ -10,6 +10,7 @@ namespace PJKT.SDK2
     public class PJKTBoothDescriptorEditor : Editor
     {
         private const string uxmlPath = "Packages/com.pjkt.sdk/Editor/Visual Elements/BoothDescriptor.uxml";
+        private readonly string groupIdPattern = @"^grp_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
 
         private Label boothName;
         private BoothDescriptor descriptor;
@@ -20,6 +21,7 @@ namespace PJKT.SDK2
         
         //group id
         private TextField groupID;
+        private VisualElement groupIdFormatWarning;
         
         //community options
         private Label currentCommunity;
@@ -70,6 +72,9 @@ namespace PJKT.SDK2
             currentCommunity.RegisterCallback<ClickEvent>(ShowCommunities);
             communityOptions.RegisterCallback<MouseLeaveEvent>(HideCommunityOptions);
             
+            groupIdFormatWarning = clone.Q<VisualElement>("GroupIdWarning");
+            EnforceGroupIdFormat();
+            
             FillCommunities();
             if (string.IsNullOrEmpty(currentCommunityProp.stringValue))
             {
@@ -87,8 +92,21 @@ namespace PJKT.SDK2
         
         private void UpdateGroupID(ChangeEvent<string> evt)
         {
+            //enforce group id format here. grp_f0481bfb-d6dd-4386-a13e-175f6b09ab0b
+            EnforceGroupIdFormat();
+            
             serializedObject.FindProperty("GroupID").stringValue = groupID.value;
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void EnforceGroupIdFormat()
+        {
+            //enforce group id format here. grp_f0481bfb-d6dd-4386-a13e-175f6b09ab0b
+            if (!string.IsNullOrEmpty(groupID.value) && !System.Text.RegularExpressions.Regex.IsMatch(groupID.value, groupIdPattern))
+            {
+                groupIdFormatWarning.style.display = DisplayStyle.Flex;
+            }
+            else groupIdFormatWarning.style.display = DisplayStyle.None;
         }
         
         private void UpdateRepresentitives(ChangeEvent<string> evt, int repNumber)
