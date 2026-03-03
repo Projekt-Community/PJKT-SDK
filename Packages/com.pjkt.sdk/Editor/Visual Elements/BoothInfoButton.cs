@@ -136,6 +136,12 @@ namespace PJKT.SDK2
             window.RefreshPage();
         }
 
+        //basically creates the zip and stops there
+        private void ExportBoothFiles()
+        {
+            string path = EditorUtility.SaveFilePanel("Export Booth", "", booth.boothName + ".zip", "zip");
+        }
+
         private async void UploadBooth(ClickEvent evt)
         {
             //booth upload goes here
@@ -182,6 +188,14 @@ namespace PJKT.SDK2
             if (BoothValidator.Report.Overallranking < BoothPerformanceRanking.Ok)
             {
                 PjktSdkWindow.Notify("Please fix the errors before uploading", BoothErrorType.Error);
+                ResetUploadButton();
+                return;
+            }
+            
+            //copyright disclaimer
+            if (!EditorUtility.DisplayDialog("Copyright Disclaimer", "By uploading this booth you confirm that you have the rights to all the content in this booth and that you are allowed to upload it to VRChat. If you do not have the rights to any of the content in this booth please do not upload it. If you are unsure about the rights of any content in your booth please ask for help on the discord. By uploading this booth you hereby give Projekt: Community a licence to use the uploaded content within our VRChat worlds for the event, as well as permission to appear in our media and promotional content.", "I have the rights", "Cancel Upload"))
+            {
+                PjktSdkWindow.Notify("Upload canceled", BoothErrorType.Warning);
                 ResetUploadButton();
                 return;
             }
