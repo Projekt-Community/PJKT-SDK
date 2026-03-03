@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using PJKT.SDK2.Extras;
 using PJKT.SDK2.NET;
 using UnityEditor;
@@ -19,8 +20,13 @@ namespace PJKT.SDK2
         private VisualElement boothPreview => this.Q<VisualElement>("PreviewImage");
         private VisualElement boothIssues => this.Q<VisualElement>("Booth_Issues");
         private Button uploadButton => this.Q<Button>("Upload_Button");
-        private Button assessButton => this.Q<Button>("AssessBoothButton");
-        private Button buildTestButton => this.Q<Button>("BuildTest_Button"); 
+        private Button exportButton => this.Q<Button>("AssessBoothButton");
+        //private Button buildTestButton => this.Q<Button>("BuildTest_Button"); 
+        
+        //community options
+        private Label currentCommunity => this.Q<Label>("CurrentOption");
+        private VisualElement communityOptions => this.Q<VisualElement>("CommunityOptions");
+        private List<string> communityNames = new List<string>();
 
         public BoothDescriptor booth { get; private set; }
 
@@ -35,19 +41,88 @@ namespace PJKT.SDK2
             boothPreview.style.backgroundImage = AssetPreview.GetAssetPreview(boothDescriptor.gameObject);
             
             uploadButton.RegisterCallback<ClickEvent>(UploadBooth);
-            assessButton.RegisterCallback<ClickEvent>(CheckBooth);
-            buildTestButton.RegisterCallback<ClickEvent>(BuildAndTestBooth);
+            exportButton.RegisterCallback<ClickEvent>(ExportBoothFiles);
+            //buildTestButton.RegisterCallback<ClickEvent>(BuildAndTestBooth);
 
             StyleCursor cursor = SillyCursors.GetSillyCursor();
             uploadButton.style.cursor = cursor;
-            assessButton.style.cursor = cursor;
-            buildTestButton.style.cursor = cursor;
+            exportButton.style.cursor = cursor;
+            //buildTestButton.style.cursor = cursor;
+            
+            currentCommunity.RegisterCallback<ClickEvent>(ShowCommunities);
+            currentCommunity.text = booth.currentCommunity;
+            
+            communityOptions.RegisterCallback<MouseLeaveEvent>(HideCommunityOptions);
+            FillCommunities();
         }
 
+        //tossing this out too
         private void CheckBooth(ClickEvent evt)
         {
             boothIssues.Clear();
             SelectBooth(); //may not wanna do this
+        }
+        
+        private void FillCommunities()
+        {
+            if (Authentication.ActiveUser == null) return;
+            
+            //destroy all children in the community options
+            communityOptions.Clear();
+            communityNames.Clear();
+            
+            //clone the current community option for each community in the list
+            foreach (var community in Authentication.ActiveUser.communityMemberships)
+            {
+                Label communityOption = new Label(community.community.name);
+                communityOption.style.unityFontStyleAndWeight = FontStyle.Bold;
+                communityOption.style.color = Color.white;
+
+                communityOption.RegisterCallback<ClickEvent>(ChangeCommunity);
+                communityOption.RegisterCallback<MouseEnterEvent>(HighlightOption);
+                communityOption.RegisterCallback<MouseLeaveEvent>(UnhighlightOption);
+                communityOptions.Add(communityOption);
+                communityNames.Add(community.community.name);
+            }
+        }
+        
+        private void ShowCommunities(ClickEvent evt)
+        {
+            if (communityOptions.childCount == 0) return;
+            communityOptions.style.display = DisplayStyle.Flex;
+        }
+
+        private void HideCommunityOptions(MouseLeaveEvent evt)
+        {
+            communityOptions.style.display = DisplayStyle.None;
+        }
+        
+        private void ChangeCommunity(ClickEvent evt)
+        {
+            Label label = evt.target as Label;
+            if (label == null) return;
+            
+            SerializedObject so = new SerializedObject(booth);
+            so.FindProperty("currentCommunity").stringValue = label.text;
+            so.ApplyModifiedProperties();
+            currentCommunity.text = label.text;
+            communityOptions.style.display = DisplayStyle.None;
+        }
+
+        private void HighlightOption(MouseEnterEvent evt)
+        {
+            Label label = evt.target as Label;
+            if (label == null) return;
+            
+            label.style.backgroundColor = new StyleColor(new Color(0f, 0.4f, 0.6f, 0.8f));
+        }
+        
+        private void UnhighlightOption(MouseLeaveEvent evt)
+        {
+            Label label = evt.target as Label;
+            if (label == null) return;
+            
+            label.style.backgroundColor = new StyleColor(Color.clear);
         }
         
         public void SelectBooth()
@@ -64,7 +139,7 @@ namespace PJKT.SDK2
                                 vram.DetailsString + "\n" +
                                 fileSize.DetailsString;
             boothOptions.style.display = DisplayStyle.Flex;
-            assessButton.style.display = DisplayStyle.Flex;
+            exportButton.style.display = DisplayStyle.Flex;
             boothSelectButton.style.maxWidth = StyleKeyword.None;
             boothSelectButton.style.minWidth = 250;
             boothSelectButton.style.flexGrow = 1;
@@ -105,13 +180,14 @@ namespace PJKT.SDK2
         public void DeselectBooth()
         {
             boothOptions.style.display = DisplayStyle.None;
-            assessButton.style.display = DisplayStyle.None;
+            exportButton.style.display = DisplayStyle.None;
             boothSelectButton.style.maxWidth = 112;
             boothSelectButton.style.minWidth = 112;
             style.flexGrow = 0;
             boothIssues.Clear();
         }
 
+        //getting rid of this
         private async void BuildAndTestBooth(ClickEvent evt)
         {
             //check if user is logged into vrcsdk
@@ -137,9 +213,25 @@ namespace PJKT.SDK2
         }
 
         //basically creates the zip and stops there
-        private void ExportBoothFiles()
+        private void ExportBoothFiles(ClickEvent evt)
         {
-            string path = EditorUtility.SaveFilePanel("Export Booth", "", booth.boothName + ".zip", "zip");
+            string path = EditorUtility.SaveFilePanel("Export Booth", "", booth.currentCommunity + ".zip", "zip");
+            if (string.IsNullOrEmpty(path)) return;
+
+            if (!ConfirmBoothChanges()) return;
+            BoothValidator.PrepareBooth(booth);
+            
+            PjktFileExporter exporter = new PjktFileExporter(booth.currentCommunity, path);
+            string packagePath = exporter.CreateBoothfile(booth.gameObject);
+            
+            if (string.IsNullOrEmpty(packagePath))
+            {
+                //failed to create zip for some reason
+                PjktSdkWindow.Notify($"Failed to create booth package. Ask for help on the discord.", BoothErrorType.Error);
+                return;
+            }
+            
+                PjktSdkWindow.Notify($"Booth exported to {packagePath}");
         }
 
         private async void UploadBooth(ClickEvent evt)
@@ -225,7 +317,7 @@ namespace PJKT.SDK2
             uploadButton.text = "Build and upload Booth";
             uploadButton.SetEnabled(true);
         }
-
+        
         private bool ConfirmBoothChanges()
         {
             string message = $"This will make the following changes to your booth: " +

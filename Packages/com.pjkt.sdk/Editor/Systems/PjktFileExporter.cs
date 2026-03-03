@@ -27,8 +27,9 @@ namespace PJKT.SDK2
 
         public readonly string TempDirectory;
         public readonly string CommunityName;
+        public readonly string ExportPath;
         
-        public PjktFileExporter(string  communityName)
+        public PjktFileExporter(string  communityName, string exportPath = "")
         {
             //sanitise community name. disallow < > : " / \ | ? *
             char[] invalidChars = Path.GetInvalidFileNameChars();
@@ -36,6 +37,7 @@ namespace PJKT.SDK2
             
             CommunityName = cleanName;
             TempDirectory = Path.GetTempPath() + "PjktSdk\\" + CommunityName;
+            ExportPath = exportPath;
         }
         
         public string CreateBoothfile(GameObject booth)
@@ -82,7 +84,8 @@ namespace PJKT.SDK2
             //do community and booth info json here
             
             //now zip it up
-            string zipPath = "Assets/PjktTemp/" + boothName + ".zip"; //later change it to community name + event name
+            string zipPath = string.IsNullOrEmpty(ExportPath)? "Assets/PjktTemp/" + boothName + ".zip" : ExportPath;
+            if (File.Exists(zipPath)) File.Delete(zipPath);
             ZipFile.CreateFromDirectory(TempDirectory, zipPath);
             
             //cleanup the prefab
