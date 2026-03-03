@@ -105,6 +105,9 @@ namespace PJKT.SDK2
             List<MeshAsset> meshAssets = Report.GetStats(StatsType.Mesh).ComponentList.Cast<MeshAsset>().ToList();
             Report.Stats.Add(GetVram(textureInfos, meshAssets));
             Report.Stats.Add(GetFileSize());
+            
+            //new invalid object, just directional lights and reflection probes for now
+            Report.Stats.Add(GetInvalidObjects());
 
             Report.Overallranking = OverallRank(); //done :3
             
@@ -547,6 +550,33 @@ namespace PJKT.SDK2
             BoothPerformanceRanking ranking = sizeOnDisk == maxFileSize ? BoothPerformanceRanking.Ok : sizeOnDisk > maxFileSize ? BoothPerformanceRanking.Bad : BoothPerformanceRanking.Good;
             return new BoothStats(StatsType.FileSize, ranking, "Approx file size: " + FormatSize(sizeOnDisk) + " / " + FormatSize(maxFileSize), $"Max Filesize: {maxFileSize}",new List<object>());
         }
+
+        private static BoothStats GetInvalidObjects()
+        {
+            string detailsString = "";
+            BoothPerformanceRanking ranking = BoothPerformanceRanking.Good;
+            
+            //get all reflection probes and directional lights
+            ReflectionProbe[] probes = SelectedBooth.gameObject.GetComponentsInChildren<ReflectionProbe>(true);
+            Light[] lights = SelectedBooth.gameObject.GetComponentsInChildren<Light>(true);
+            
+            if (probes.Length > 0)
+            {
+                detailsString += "Booth contains reflection probes. Please remove these";
+                ranking = BoothPerformanceRanking.Bad;
+            }
+
+            int directionalLights = 0;
+            foreach (Light light in lights) if (light.type == LightType.Directional) directionalLights++;
+            if (directionalLights > 0)
+            {
+                if (detailsString != "") detailsString += "\n";
+                detailsString += "Booth contains directional lights. Please remove these";
+                ranking = BoothPerformanceRanking.Bad;
+            }
+            
+            return new BoothStats(StatsType.InvalidObjects, ranking, detailsString, "Booths cannot contain Directional Lights or Reflection Probes", null);
+        }
         
         public static string FormatSize(long size)
         {
@@ -722,10 +752,23 @@ namespace PJKT.SDK2
                 objectPaths.Add(GetGameobjectPath(child.gameObject));
             }
             
+            //remove reflection probes
+            ReflectionProbe[] probes = booth.GetComponentsInChildren<ReflectionProbe>();
+            for (int i = 0; i < probes.Length; i++)
+            {
+                GameObject.Destroy(probes[i]);
+            }
+            
             //find all lights and limit
             Light[] lights = booth.GetComponentsInChildren<Light>();
             for (int i = 0; i < lights.Length; i++)
             {
+                if (lights[i].type == LightType.Directional)
+                {
+                    GameObject.Destroy(lights[i]);
+                    continue;
+                }
+                
                 //light limits
                 lights[i].lightmapBakeType = LightmapBakeType.Baked;
                 lights[i].intensity = Mathf.Clamp(lights[i].intensity, 0, 10);

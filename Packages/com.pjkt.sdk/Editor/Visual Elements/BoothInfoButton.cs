@@ -323,7 +323,9 @@ namespace PJKT.SDK2
             string message = $"This will make the following changes to your booth: " +
                              $"\nAll Lights will be set to baked" +
                              $"\nAll lights will have their range and intensity limited" +
+                             $"\nAny directional lights will be removed" +
                              $"\nAll non animated objects will have their static flags adjusted" +
+                             $"\nAll reflection probes will be removed" +
                              $"\n\nIf there is any unusual behaviour after this process please let us know on the discord.";
             if (!EditorUtility.DisplayDialog("Confirm changes", message, "Go for it", "Actually, hold up"))
             {

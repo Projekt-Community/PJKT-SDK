@@ -63,6 +63,7 @@ namespace PJKT.SDK2
         AvatarPeds,
         Portals,
         UdonBehaviours,
+        InvalidObjects,
     }
 
     public class MeshAsset
