@@ -64,6 +64,14 @@ namespace PJKT.SDK2
             Authentication.OnLoginStatusChanged -= OnLoginChanged;
         }
 
+        private void OnFocus()
+        {
+            if (_selectedTab == null) return;
+            if (_selectedTab.pageType != SDKPageType.Booths) return;
+            BoothPage boothPage = _sdkPageView.Q<BoothPage>();
+            if (boothPage != null) boothPage.RefreshBoothInfo();
+        }
+
         //feel free to reorder these
         private void CreateTabs()
         {
