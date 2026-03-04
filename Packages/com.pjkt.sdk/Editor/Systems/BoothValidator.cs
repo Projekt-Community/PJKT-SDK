@@ -741,6 +741,28 @@ namespace PJKT.SDK2
                 return;
             }
             
+            //set all meshes to low mesh compression
+            BoothStats meshes = Report.GetStats(StatsType.TriCount);
+            foreach (var mesh in meshes.ComponentList)
+            {
+                string assetpath = (Mesh)mesh is Mesh ? AssetDatabase.GetAssetPath((Mesh)mesh) : null;
+                if (assetpath == null || assetpath.Contains(".asset")) continue;
+                ModelImporter importer = AssetImporter.GetAtPath(assetpath) as ModelImporter;
+                if (importer == null) continue;
+                if (importer.meshCompression < ModelImporterMeshCompression.Low) importer.meshCompression = ModelImporterMeshCompression.Low;
+            }
+            
+            //set all textures limits to 1k on android
+            BoothStats textures = Report.GetStats(StatsType.Textures);
+            foreach (TextureInfo info in textures.ComponentList)
+            {
+                if (info.importer == null) continue;
+                TextureImporterPlatformSettings settings = info.importer.GetPlatformTextureSettings("Android");
+                settings.overridden = true;
+                settings.maxTextureSize = Mathf.Min(settings.maxTextureSize, 1024);
+                info.importer.SetPlatformTextureSettings(settings);
+            }
+            
             //get all gameobjects in the booth
             List<string> objectPaths = new List<string>();
             objectPaths.Add(GetGameobjectPath(booth.gameObject));
