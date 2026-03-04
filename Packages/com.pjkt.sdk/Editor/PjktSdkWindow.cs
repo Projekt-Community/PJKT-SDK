@@ -28,7 +28,8 @@ namespace PJKT.SDK2
         private VisualElement eventLogo;
         private List<string> eventNames = new List<string>();
 
-        SdkTab _selectedTab;
+        private SdkTab _selectedTab;
+        private SdkTab _defaultTab;
         private async void OnEnable()
         {
             VisualTreeAsset asset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/com.pjkt.sdk/Editor/Visual Elements/PjktSdk2xml.uxml");
@@ -81,6 +82,7 @@ namespace PJKT.SDK2
             homeTabButton.tooltip = "Booth Info";
             homeTabButton.RegisterCallback<ClickEvent>(OnTabClick);
             _tabsScrollView.Add(homeTab);
+            _defaultTab = homeTab;
             
             //Event Tab
             var eventsTab = new SdkTab(PjktGraphics.GetGraphic("EventTicket"), PjktGraphics.GraphicColors["EventTicket"], SDKPageType.Events);
@@ -178,6 +180,14 @@ namespace PJKT.SDK2
                 await HideRegister();
                 ShowContent();
                 ShowSideBar();
+                
+                //show booth page by default
+                SDKPage newPage = GetSDKPage(SDKPageType.Booths);
+                if (newPage == null) return;
+                _defaultTab.SelectTab(true);
+                _selectedTab = _defaultTab;
+                _sdkPageView.Add(newPage);
+                newPage.OnTabEnable();
 
                 Notify("Login successful, welcome!", BoothErrorType.Info);
             }
@@ -199,6 +209,14 @@ namespace PJKT.SDK2
             ShowContent();
             ShowSideBar();
 
+            //show booth page by default
+            SDKPage newPage = GetSDKPage(SDKPageType.Booths);
+            if (newPage == null) return;
+            _defaultTab.SelectTab(true);
+            _selectedTab = _defaultTab;
+            _sdkPageView.Add(newPage);
+            newPage.OnTabEnable();
+            
             Notify("Entered as guest, welcome!", BoothErrorType.Info);
         }
         
