@@ -266,13 +266,26 @@ namespace PJKT.SDK2
         }
         private static BoothStats GetMaterials(List<Renderer> renderers)
         {
+            List<PerformanceTip> tips = new List<PerformanceTip>();
             HashSet<Material> materials = new HashSet<Material>();
             foreach (Renderer renderer in renderers)
             {
                 materials.UnionWith(renderer.sharedMaterials);
             }
+            
+            //check for non vrc shaders
+            foreach (var mat in materials)
+            {
+                if (mat == null) continue;
+                if (!mat.shader.name.StartsWith("VRChat/"))
+                {
+                    tips.Add(new PerformanceTip("Custom shaders found. If you arent doing something special, please try to use the built in VRChat shaders for the best performance.", BoothErrorType.Info));
+                    break;
+                }
+            }
+            
             BoothPerformanceRanking ranking = materials.Count == Requirements.MaxMaterial ? BoothPerformanceRanking.Ok : materials.Count > Requirements.MaxMaterial ? BoothPerformanceRanking.Bad : BoothPerformanceRanking.Good;
-            return new BoothStats(StatsType.Materials, ranking, "Materials: " + materials.Count + "/" + Requirements.MaxMaterial, $"Max Materials: {Requirements.MaxMaterial}", new List<object>(materials));
+            return new BoothStats(StatsType.Materials, ranking, "Materials: " + materials.Count + "/" + Requirements.MaxMaterial, $"Max Materials: {Requirements.MaxMaterial}", new List<object>(materials), tips);
         }
         private static BoothStats GetTextures(List<Material> materials)
         {

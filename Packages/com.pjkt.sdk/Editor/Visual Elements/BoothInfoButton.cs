@@ -168,6 +168,11 @@ namespace PJKT.SDK2
                 {
                     boothIssues.Add(new BoothError(stats.DetailsString, BoothErrorType.Error));
                 }
+
+                foreach (var tip in stats.PerformanceTips)
+                {
+                    boothIssues.Add(new BoothError(tip.message, tip.errorType));
+                }
             }
             
             if (BoothValidator.Report.Overallranking < BoothPerformanceRanking.Ok)
