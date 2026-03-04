@@ -56,8 +56,8 @@ namespace PJKT.SDK2
             FillCommunities();
         }
 
-        //tossing this out too
-        private void CheckBooth(ClickEvent evt)
+        
+        public void CheckBooth()
         {
             boothIssues.Clear();
             SelectBooth(); //may not wanna do this
