@@ -13,6 +13,7 @@ namespace PJKT.SDK2
         public EventButton() { }
         
         public Project Projekt { get; private set; }
+        private PjktSdkWindow window;
         
         //titlebar
         public VisualElement titleBar => this.Q<VisualElement>("TitleBar");
@@ -46,6 +47,9 @@ namespace PJKT.SDK2
         {
             //assess the booth
             PjktEventManager.SelectedProjekt = Projekt;
+            if (window == null) window = EditorWindow.GetWindow<PjktSdkWindow>();
+            window.SetEvent(Projekt);
+            
             BoothDescriptor._maxBounds = new Vector3(requirements.MaxDims[0], requirements.MaxDims[2], requirements.MaxDims[1]);
             BoothValidator.Requirements = requirements;
             BoothValidator.GenerateReport();
