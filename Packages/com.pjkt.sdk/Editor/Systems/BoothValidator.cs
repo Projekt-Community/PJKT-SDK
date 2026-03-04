@@ -764,10 +764,14 @@ namespace PJKT.SDK2
             }
             
             //get all gameobjects in the booth
+            if (booth.gameObject.layer == 0) booth.gameObject.layer = 22;
             List<string> objectPaths = new List<string>();
             objectPaths.Add(GetGameobjectPath(booth.gameObject));
             foreach (Transform child in booth.transform)
             {
+                //set all stuff thats on default layer to layer 22
+                if (child.gameObject.layer == 0) child.gameObject.layer = 22;
+                
                 //ignore skinned meshes and pickups
                 if (child.TryGetComponent(typeof(SkinnedMeshRenderer), out _)) continue;
                 if (child.TryGetComponent(typeof(VRCPickup), out _)) continue;
@@ -778,7 +782,7 @@ namespace PJKT.SDK2
             ReflectionProbe[] probes = booth.GetComponentsInChildren<ReflectionProbe>();
             for (int i = 0; i < probes.Length; i++)
             {
-                GameObject.Destroy(probes[i]);
+                GameObject.DestroyImmediate(probes[i]);
             }
             
             //find all lights and limit
@@ -787,7 +791,7 @@ namespace PJKT.SDK2
             {
                 if (lights[i].type == LightType.Directional)
                 {
-                    GameObject.Destroy(lights[i]);
+                    GameObject.DestroyImmediate(lights[i]);
                     continue;
                 }
                 
