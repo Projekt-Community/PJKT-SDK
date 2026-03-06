@@ -19,6 +19,10 @@ namespace PJKT.SDK2
         private VisualElement boundsToggle;
         private VisualElement boundsCheck;
         
+        //audio isolate toggle
+        private VisualElement audioIsolateToggle;
+        private VisualElement audioIsolateCheck;
+        
         //group id
         private TextField groupID;
         private VisualElement groupIdFormatWarning;
@@ -49,6 +53,12 @@ namespace PJKT.SDK2
             boundsToggle.RegisterCallback<ClickEvent>(ShowBounds);
             SerializedProperty showBounds = serializedObject.FindProperty("showBounds");
             boundsCheck.style.display = showBounds.boolValue ? DisplayStyle.Flex : DisplayStyle.None;
+            
+            audioIsolateToggle = clone.Q<VisualElement>("IsolateAudioToggle");
+            audioIsolateCheck = clone.Q<VisualElement>("IsolateAudioCheck");
+            audioIsolateToggle.RegisterCallback<ClickEvent>(ToggleAudioIsolation);
+            SerializedProperty audioIsolateProperty = serializedObject.FindProperty("IsolateBoothAudio");
+            audioIsolateCheck.style.display = audioIsolateProperty.boolValue ? DisplayStyle.Flex : DisplayStyle.None;
             
             groupID = clone.Q<TextField>("Group_ID_Input");
             groupID.RegisterValueChangedCallback(UpdateGroupID);
@@ -145,6 +155,16 @@ namespace PJKT.SDK2
             serializedObject.ApplyModifiedProperties();
             
             boundsCheck.style.display = showBounds ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private void ToggleAudioIsolation(ClickEvent evt)
+        {
+            serializedObject.Update();
+            SerializedProperty audioIsolateProp = serializedObject.FindProperty("IsolateBoothAudio");
+            audioIsolateProp.boolValue = !audioIsolateProp.boolValue;
+            serializedObject.ApplyModifiedProperties();
+            
+            audioIsolateCheck.style.display = audioIsolateProp.boolValue ? DisplayStyle.Flex : DisplayStyle.None;
         }
         
         private void ShowCommunities(ClickEvent evt)

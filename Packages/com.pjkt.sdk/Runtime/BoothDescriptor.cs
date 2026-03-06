@@ -9,6 +9,7 @@ namespace PJKT.SDK2
     {
         public string boothName { get { return gameObject.name;}}
         public bool showBounds = true;
+        public bool IsolateBoothAudio = false;
         public string currentCommunity;
         public string GroupID = "grp_";
         public string[] representitives = new string[3];
