@@ -332,6 +332,7 @@ namespace PJKT.SDK2
                              $"\nAny directional lights will be removed" +
                              $"\nAll non animated objects will have their static flags adjusted" +
                              $"\nAll reflection probes will be removed" +
+                             $"\nAll audio sources will be set to 3d" +
                              $"\nAll meshes will be set to low compression at a minimum" +
                              $"\nAll textures will be set to a maximum size of 1024 on android" +
                              $"\n\nIf there is any unusual behaviour after this process please let us know on the discord.";

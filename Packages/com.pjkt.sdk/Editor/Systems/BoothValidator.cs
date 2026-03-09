@@ -746,6 +746,38 @@ namespace PJKT.SDK2
             return bytes;
         }
 
+        //for debugging
+        [MenuItem("PJKT SDK/Tools/Run booth preprocessing")]
+        public static void PreProcessBooth()
+        {
+            if (Selection.activeGameObject == null)
+            {
+                EditorUtility.DisplayDialog("PJKT SDK", "Please select a gameobject with a booth descriptor component first.", "OK");
+                return;
+            }
+
+            BoothDescriptor booth = Selection.activeGameObject.GetComponent<BoothDescriptor>();
+            if (booth == null)
+            {
+                EditorUtility.DisplayDialog("PJKT SDK", "Please select a gameobject with a booth descriptor component first.", "OK");
+                return;
+            }
+            
+            string message = $"This will make the following changes to your booth: " +
+                             $"\nAll Lights will be set to baked" +
+                             $"\nAll lights will have their range and intensity limited" +
+                             $"\nAny directional lights will be removed" +
+                             $"\nAll non animated objects will have their static flags adjusted" +
+                             $"\nAll reflection probes will be removed" +
+                             $"\nAll audio sources will be set to 3d" +
+                             $"\nAll meshes will be set to low compression at a minimum" +
+                             $"\nAll textures will be set to a maximum size of 1024 on android" +
+                             $"\n\nIf there is any unusual behaviour after this process please let us know on the discord.";
+            if (!EditorUtility.DisplayDialog("Confirm changes", message, "Go for it", "Actually, hold up")) return;
+            
+            PrepareBooth(booth);
+        }
+        
         public static void PrepareBooth(BoothDescriptor booth)
         {
             if (booth == null)
@@ -812,6 +844,13 @@ namespace PJKT.SDK2
                 lights[i].lightmapBakeType = LightmapBakeType.Baked;
                 lights[i].intensity = Mathf.Clamp(lights[i].intensity, 0, 10);
                 lights[i].range = Mathf.Clamp(lights[i].range, 0, 7);
+            }
+            
+            //limit audio to 3d
+            AudioSource[] audioSources = booth.GetComponentsInChildren<AudioSource>();
+            for (int i = 0; i < audioSources.Length; i++)
+            {
+                audioSources[i].spatialBlend = 1;
             }
 
             //get all animations from the report
