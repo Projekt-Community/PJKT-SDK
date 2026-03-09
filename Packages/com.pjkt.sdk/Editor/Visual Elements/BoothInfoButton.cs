@@ -180,6 +180,7 @@ namespace PJKT.SDK2
                 uploadButton.SetEnabled(false);
                 uploadButton.text = "Fix errors before uploading";
             }
+            else ResetUploadButton();
         }
         
         public void DeselectBooth()
