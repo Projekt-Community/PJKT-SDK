@@ -34,14 +34,13 @@ namespace PJKT.SDK2
         { 
             //called when component is added. used to get the renderer and materials
             rend = GetComponent<Renderer>();
-            return; //some fucked shit where this is resetting the mats untill the next assembly reload
             
-            Material[] rendererMats = rend.sharedMaterials;
+            /*Material[] rendererMats = rend.sharedMaterials;  //some fucked shit where this is resetting the mats untill the next assembly reload
             
             //set all arrays to this for now
             windowsMaterials = rendererMats;
             androidMaterials = rendererMats;
-            iosMaterials = rendererMats;
+            iosMaterials = rendererMats;*/
         }
     }
 }
