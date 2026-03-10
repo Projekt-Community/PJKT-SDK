@@ -18,7 +18,7 @@ namespace PJKT.SDK2
             PerformanceRank = boothPerformanceRanking;
             DetailsString = details;
             RequirementsString = requirements;
-            ComponentList = components;
+            ComponentList = components != null? components : new List<object>();
             PerformanceTips = tips != null? tips : new List<PerformanceTip>();
         }
         

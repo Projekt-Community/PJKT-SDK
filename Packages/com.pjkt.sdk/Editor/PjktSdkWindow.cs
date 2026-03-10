@@ -52,7 +52,7 @@ namespace PJKT.SDK2
             Authentication.OnLoginStatusChanged += OnLoginChanged;
             
             CreateTabs();
-            BoothValidator.GetBoothsInScene();
+            //BoothValidator.GetBoothsInScene();
             PjktEventManager.GetEvents();
 
             await Authentication.TryResumeSession();
