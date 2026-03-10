@@ -110,7 +110,7 @@ namespace PJKT.SDK2
             metadata.BoothUploaderUsername = Authentication.ActiveUser.user.username;
             
             string json = JsonUtility.ToJson(metadata, true);
-            File.WriteAllText($"{TempDirectory}\\boothInfo.json", json);
+            File.WriteAllText($"{TempDirectory}\\boothInfo {CommunityName} - {metadata.EventName}.json", json);
             
             //now zip it up
             string zipPath = string.IsNullOrEmpty(ExportPath)? "Assets/PjktTemp/" + boothName + ".zip" : ExportPath;
