@@ -152,6 +152,19 @@ namespace PJKT.SDK2
                 return;
             }
             
+            //enforce sdk version
+            string installedSdkVer = PjktPackageChecker.PackageSources["com.pjkt.sdk"];
+            string[] sdkVersionParts = installedSdkVer.Split('.');
+            double sdkVer = double.Parse($"{sdkVersionParts[0]}.{sdkVersionParts[1]}");
+            double reqSdkVer = PjktEventManager.SelectedProjekt.booth_requirements.SdkVersion;
+            if (reqSdkVer > sdkVer)
+            {
+                uploadButton.SetEnabled(false);
+                uploadButton.text = "SDK out of date";
+                boothIssues.Add(new BoothError($"This event requires SDK version {reqSdkVer}.0 or newer. Currently installed version: {installedSdkVer}. Please update using the VRChat Creator Companion.", BoothErrorType.Error));
+                return;
+            }
+            
             //make sure a community is selected first
             if (string.IsNullOrEmpty(booth.currentCommunity))
             {

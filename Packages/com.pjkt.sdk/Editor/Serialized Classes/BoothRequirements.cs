@@ -26,8 +26,9 @@ namespace PJKT.SDK2
             MaxUdonScripts = 0;
             UdonWhitelist = new string[0];
             MaxBuildSize = 0;
+            SdkVersion = 2.0;
         }
-        public BoothRequirements(int maxTriangles, int maxStaticMeshes, int maxMaterial, float[] maxDims, float maxDimsMargin, int maxFileSize, int maxVram, int maxSkinnedMeshRenderers, int maxAnimators, int maxAnimations, int maxTextMeshPro, int maxParticles, int maxPickups, int maxAvatarPedestals, int maxPortals, int maxMirrors, int maxUdonScripts, string[] udonWhitelist, int maxBuildSize)
+        public BoothRequirements(int maxTriangles, int maxStaticMeshes, int maxMaterial, float[] maxDims, float maxDimsMargin, int maxFileSize, int maxVram, int maxSkinnedMeshRenderers, int maxAnimators, int maxAnimations, int maxTextMeshPro, int maxParticles, int maxPickups, int maxAvatarPedestals, int maxPortals, int maxMirrors, int maxUdonScripts, string[] udonWhitelist, int maxBuildSize, double sdkVersion)
         {
             MaxTriangles = maxTriangles;
             MaxStaticMeshes = maxStaticMeshes;
@@ -48,6 +49,7 @@ namespace PJKT.SDK2
             MaxUdonScripts = maxUdonScripts;
             UdonWhitelist = udonWhitelist;
             MaxBuildSize = maxBuildSize;
+            SdkVersion = sdkVersion;
         }
 
         public float[] MaxDims;
@@ -69,5 +71,6 @@ namespace PJKT.SDK2
         public int MaxSkinnedMeshRenderers;
         public int MaxStaticMeshes;
         public int MaxBuildSize;
+        public double SdkVersion;
     }
 }

@@ -58,6 +58,10 @@ namespace PJKT.SDK2
             await Authentication.TryResumeSession();
             
             if (!Authentication.IsLoggedIn) ShowLogin();
+            
+            #pragma warning disable CS4014
+            PjktPackageChecker.ListAllPackages();
+            #pragma warning  restore CS4014
         }
 
         private void OnDisable()
