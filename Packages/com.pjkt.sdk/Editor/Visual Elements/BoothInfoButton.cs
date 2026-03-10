@@ -194,7 +194,7 @@ namespace PJKT.SDK2
         }
 
         //getting rid of this
-        private async void BuildAndTestBooth(ClickEvent evt)
+        /*private async void BuildAndTestBooth(ClickEvent evt)
         {
             //check if user is logged into vrcsdk
             if (!VRC.Core.APIUser.IsLoggedIn)
@@ -216,7 +216,7 @@ namespace PJKT.SDK2
             //refresh booths page
             PjktSdkWindow window = EditorWindow.GetWindow<PjktSdkWindow>();
             window.RefreshPage();
-        }
+        }*/
 
         //basically creates the zip and stops there
         private void ExportBoothFiles(ClickEvent evt)

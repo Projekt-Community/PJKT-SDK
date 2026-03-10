@@ -21,7 +21,7 @@ namespace PJKT.SDK2
             Booth = booth;
             Options = options;
         }
-
+/* old and doesnt work very well
         public async Task<bool> BuildAndTestBooth()
         {
             previousScene = SceneManager.GetActiveScene(); //save the current scene were in
@@ -94,7 +94,7 @@ namespace PJKT.SDK2
             EditorSceneManager.OpenScene(previousScene.path, OpenSceneMode.Single);
             
             if (File.Exists(scenePath)) File.Delete(scenePath);
-        }
+        }*/
     }
 
     public class PjktTestSceneOptions
