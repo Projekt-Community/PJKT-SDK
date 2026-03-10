@@ -199,6 +199,7 @@ namespace PJKT.SDK2
         private static BoothStats GetStaticMeshes(List<MeshFilter> staticMeshes)
         {
             Texture icon = AssetPreview.GetMiniTypeThumbnail(typeof(MeshFilter));
+            List<PerformanceTip> tips = new List<PerformanceTip>();
             
             //create a MeshAsset for each one
             List<MeshAsset> meshAssets = new List<MeshAsset>();
@@ -212,8 +213,14 @@ namespace PJKT.SDK2
                 meshAssets.Add(asset);
             }
             
+            //check and warn for probuilder
+            if (PjktPackageChecker.PackageSources.ContainsKey("com.unity.probuilder"))
+            {
+                tips.Add(new PerformanceTip("Probuilder detected in project. If you are using it, make sure to export instanced meshes to files before uploading.", BoothErrorType.Warning));
+            }
+            
             BoothPerformanceRanking ranking = staticMeshes.Count == Requirements.MaxStaticMeshes ? BoothPerformanceRanking.Ok : staticMeshes.Count > Requirements.MaxStaticMeshes ? BoothPerformanceRanking.Bad : BoothPerformanceRanking.Good;
-            return new BoothStats(StatsType.Mesh, ranking, "Static Meshes: " + staticMeshes.Count + "/" + Requirements.MaxStaticMeshes, $"Max Static Meshes: {Requirements.MaxStaticMeshes}", new List<object>(meshAssets));
+            return new BoothStats(StatsType.Mesh, ranking, "Static Meshes: " + staticMeshes.Count + "/" + Requirements.MaxStaticMeshes, $"Max Static Meshes: {Requirements.MaxStaticMeshes}", new List<object>(meshAssets), tips);
         }
         private static BoothStats GetSkinnedMeshes(List<SkinnedMeshRenderer> skinnedMeshes)
         {
