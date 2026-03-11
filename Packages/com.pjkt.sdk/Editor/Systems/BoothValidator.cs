@@ -366,6 +366,7 @@ namespace PJKT.SDK2
                         pixelSize = GetOriginalTextureSize(importer),
                         importedSize = settings.maxTextureSize,
                         vRamSize = CalculateTextureVram(texture, format),
+                        sizeOnDisk = new FileInfo(path).Length,
                         importer = importer,
                         materials = new List<Material>()
                         {

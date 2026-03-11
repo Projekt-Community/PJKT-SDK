@@ -90,6 +90,7 @@ namespace PJKT.SDK2
         public int[] pixelSize;
         public int importedSize;
         public long vRamSize;
+        public long sizeOnDisk;
         public TextureImporter importer;
         public List<Material> materials;
     }
