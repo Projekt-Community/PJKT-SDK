@@ -15,6 +15,10 @@ namespace PJKT.SDK2
             panel.style.flexGrow = 1;
             topArea.Add(panel);
             
+            //warning for removing old version of packages
+            BoothError warning = new  BoothError("If you have previously installed any of the example packages, please remove them before installing the new versions. Everything should be under Assets/PJKT.", BoothErrorType.Warning);
+            topArea.Add(warning);
+            
             //grab all unitypackages in the examples folder and add them to the scroll view. would be nice but need more info that cant be provided
             /*string[] packagePaths = Directory.GetFiles(unityPackagesBasePath, "*.unitypackage", SearchOption.AllDirectories);
             foreach (string packagePath in packagePaths)
