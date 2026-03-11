@@ -443,8 +443,15 @@ namespace PJKT.SDK2
         }
         private static BoothStats GetTextMeshPro(List<TMP_Text> textMeshes)
         {
+            //warnign about font
+            List<PerformanceTip> tips = new List<PerformanceTip>();
+            if (textMeshes.Count > 0)
+            {
+                tips.Add(new PerformanceTip("Custom fonts on TMP might be overriden by our font.", BoothErrorType.Info));
+            }
+            
             BoothPerformanceRanking ranking = textMeshes.Count == Requirements.MaxTextMeshPro ? BoothPerformanceRanking.Ok : textMeshes.Count > Requirements.MaxTextMeshPro ? BoothPerformanceRanking.Bad : BoothPerformanceRanking.Good;
-            return new BoothStats(StatsType.TMProTexts, ranking, "Text Mesh Pro: " + textMeshes.Count + "/" + Requirements.MaxTextMeshPro, $"Max TMP: {Requirements.MaxTextMeshPro}", new List<object>(textMeshes));
+            return new BoothStats(StatsType.TMProTexts, ranking, "Text Mesh Pro: " + textMeshes.Count + "/" + Requirements.MaxTextMeshPro, $"Max TMP: {Requirements.MaxTextMeshPro}", new List<object>(textMeshes), tips);
         }
         private static BoothStats GetParticles(List<ParticleSystem> particles)
         {
