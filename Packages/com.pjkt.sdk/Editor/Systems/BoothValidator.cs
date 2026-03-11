@@ -796,7 +796,11 @@ namespace PJKT.SDK2
                 if (assetpath == null || assetpath.Contains(".asset")) continue;
                 ModelImporter importer = AssetImporter.GetAtPath(assetpath) as ModelImporter;
                 if (importer == null) continue;
-                if (importer.meshCompression < ModelImporterMeshCompression.Low) importer.meshCompression = ModelImporterMeshCompression.Low;
+                if (importer.meshCompression < ModelImporterMeshCompression.Low)
+                {
+                    importer.meshCompression = ModelImporterMeshCompression.Low;
+                    importer.SaveAndReimport();
+                }
             }
             
             //set all textures limits to 1k on android
@@ -808,6 +812,7 @@ namespace PJKT.SDK2
                 settings.overridden = true;
                 settings.maxTextureSize = Mathf.Min(settings.maxTextureSize, 1024);
                 info.importer.SetPlatformTextureSettings(settings);
+                info.importer.SaveAndReimport();
             }
             
             //get all gameobjects in the booth
