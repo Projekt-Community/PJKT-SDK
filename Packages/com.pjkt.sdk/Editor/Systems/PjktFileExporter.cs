@@ -81,6 +81,7 @@ namespace PJKT.SDK2
                 //cleanup the prefab
                 GameObject.DestroyImmediate(tempBooth);
                 if (File.Exists(path)) File.Delete(path);
+                if (File.Exists(path +".meta" )) File.Delete(path + ".meta");
                 return string.Empty;
             }
             
@@ -119,7 +120,9 @@ namespace PJKT.SDK2
             
             //cleanup the prefab
             GameObject.DestroyImmediate(tempBooth);
+            
             if (File.Exists(path)) File.Delete(path);
+            if (File.Exists(path +".meta" )) File.Delete(path + ".meta");
 
             if (File.Exists(zipPath)) return zipPath;
             return string.Empty;
