@@ -28,6 +28,14 @@ namespace PJKT.SDK2
             
             if (BoothValidator.SelectedBooth == null) return;
             
+            //check for custom shaders here and tell them to update
+            //warnings
+            List<BoothError> warnings = FindShadersToUpdate();
+            if (warnings.Count > 0)
+            {
+                foreach (BoothError warning in warnings) topArea.Add(warning);
+            }
+            
             //fill out info box
             foreach (Material mat in materials.ComponentList)
             {
@@ -39,6 +47,7 @@ namespace PJKT.SDK2
                     if (!texturePaths.Contains(path)) texturePaths.Add(path);
                 }
 
+                
                 string info = "Shader: " + mat.shader.name + "\n"
                               + "Textures: " + texturePaths.Count + "\n";
                 
@@ -80,6 +89,51 @@ namespace PJKT.SDK2
                 
                 scrollView.Add(panel);
             }
+        }
+        
+        private List<BoothError> FindShadersToUpdate()
+        {
+            List<BoothError> warnings = new List<BoothError>();
+            
+            //poi
+            if (PjktPackageChecker.PackageSources.ContainsKey("com.poiyomi.toon"))
+            {
+                warnings.Add(new BoothError($"Poiyomi Toon Shader was found in this project. Please make sure you are using the latest version from VCC.\nCurrent Version: {PjktPackageChecker.PackageSources["com.poiyomi.toon"]}", BoothErrorType.Warning));
+            }
+            
+            //poi pro
+            if (PjktPackageChecker.PackageSources.ContainsKey("com.poiyomi.pro"))
+            {
+                warnings.Add(new BoothError($"Poiyomi Pro Shader was found in this project. Please use the free Poiyomi Toon shader instead.\nCurrent Version: {PjktPackageChecker.PackageSources["com.poiyomi.pro"]}", BoothErrorType.Warning));
+            }
+            
+            //liltoon
+            if (PjktPackageChecker.PackageSources.ContainsKey("jp.lilxyzw.liltoon"))
+            {
+                warnings.Add(new BoothError($"Liltoon Shader was found in this project. Please make sure you are using the latest version from VCC.\nCurrent Version: {PjktPackageChecker.PackageSources["jp.lilxyzw.liltoon"]}", BoothErrorType.Warning));
+            }
+            
+            //orels
+            if (PjktPackageChecker.PackageSources.ContainsKey("sh.orels.shaders"))
+            {
+                warnings.Add(new BoothError($"Orels Shaders were found in this project. Please make sure you are using the latest version from VCC.\nCurrent Version: {PjktPackageChecker.PackageSources["sh.orels.shaders"]}", BoothErrorType.Warning));
+            }
+            
+            //mochi - diffrent because no vcc
+            Shader mochiShader = Shader.Find("Mochie/Standard");
+            if (mochiShader == null)
+            {
+                warnings.Add(new BoothError("Mochie Shaders were found in this project. Please make sure you are using the latest version to avoid conflicts with other booths.", BoothErrorType.Warning));
+            }
+            
+            //silent - also different because no vcc
+            Shader silentShader = Shader.Find("Silent/Filamented");
+            if (silentShader == null)
+            {
+                warnings.Add(new BoothError("Silent Shaders were found in this project. Please make sure you are using the latest version to avoid conflicts with other booths.", BoothErrorType.Warning));
+            }
+            
+            return warnings;
         }
     }
 }
