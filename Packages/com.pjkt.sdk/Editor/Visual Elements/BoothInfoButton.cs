@@ -337,7 +337,7 @@ namespace PJKT.SDK2
             uploadButton.SetEnabled(true);
         }
         
-        private bool ConfirmBoothChanges()
+        public static bool ConfirmBoothChanges()
         {
             string message = $"This will make the following changes to your booth: " +
                              $"\nAll Lights will be set to baked" +
@@ -346,6 +346,8 @@ namespace PJKT.SDK2
                              $"\nAll non animated objects will have their static flags adjusted" +
                              $"\nAll reflection probes will be removed" +
                              $"\nAll audio sources will be set to 3d" +
+                             $"\nObjects on default layer will be moved to layer 22 for internal use" +
+                             $"\nPickups, canvases, and thier children will be moved to layer 23 for internal use" +
                              $"\nAll meshes will be set to low compression at a minimum" +
                              $"\nAll textures will be set to a maximum size of 1024 on android" +
                              $"\n\nIf there is any unusual behaviour after this process please let us know on the discord.";

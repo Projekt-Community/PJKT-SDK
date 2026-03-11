@@ -526,9 +526,6 @@ namespace PJKT.SDK2
                 ranking = BoothPerformanceRanking.Error;
             }
             else ranking = behaviours.Count == Requirements.MaxUdonScripts ? BoothPerformanceRanking.Ok : behaviours.Count > Requirements.MaxUdonScripts ? BoothPerformanceRanking.Bad : BoothPerformanceRanking.Good;
-
-            
-            
             
             return new BoothStats(StatsType.UdonBehaviours, ranking, detailsString, $"Max Udon Behaviours: {Requirements.MaxUdonScripts}", new List<object>(behaviourinfos));
         }
@@ -777,17 +774,7 @@ namespace PJKT.SDK2
                 return;
             }
             
-            string message = $"This will make the following changes to your booth: " +
-                             $"\nAll Lights will be set to baked" +
-                             $"\nAll lights will have their range and intensity limited" +
-                             $"\nAny directional lights will be removed" +
-                             $"\nAll non animated objects will have their static flags adjusted" +
-                             $"\nAll reflection probes will be removed" +
-                             $"\nAll audio sources will be set to 3d" +
-                             $"\nAll meshes will be set to low compression at a minimum" +
-                             $"\nAll textures will be set to a maximum size of 1024 on android" +
-                             $"\n\nIf there is any unusual behaviour after this process please let us know on the discord.";
-            if (!EditorUtility.DisplayDialog("Confirm changes", message, "Go for it", "Actually, hold up")) return;
+            if (!BoothInfoButton.ConfirmBoothChanges()) return;
             
             PrepareBooth(booth);
         }
@@ -833,7 +820,28 @@ namespace PJKT.SDK2
                 
                 //ignore skinned meshes and pickups
                 if (child.TryGetComponent(typeof(SkinnedMeshRenderer), out _)) continue;
-                if (child.TryGetComponent(typeof(VRCPickup), out _)) continue;
+                
+                //pickups go to layer 23
+                if (child.TryGetComponent(typeof(VRCPickup), out _))
+                {
+                    child.gameObject.layer = 23;
+                    foreach (Transform pickupChild in child)
+                    {
+                        pickupChild.gameObject.layer = 23;
+                    }
+                    continue;
+                }
+                
+                //canvases and thier children do too.
+                if (child.TryGetComponent(typeof(Canvas), out _))
+                {
+                    child.gameObject.layer = 23;
+                    foreach (Transform canvasChild in child)
+                    {
+                        canvasChild.gameObject.layer = 23;
+                    }
+                }
+                
                 objectPaths.Add(GetGameobjectPath(child.gameObject));
             }
             
