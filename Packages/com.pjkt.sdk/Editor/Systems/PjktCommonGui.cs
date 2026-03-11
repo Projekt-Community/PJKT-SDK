@@ -12,8 +12,8 @@ namespace PJKT.SDK2
         /// <summary>
         /// draws the component header
         /// </summary>
-        private static Texture2D headerImage = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/PJKT/Editor/Resources/header.png");
-        private static Texture2D backgroundImage = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/PJKT/Editor/Resources/background.png");
+        private static Texture2D headerImage = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/PJKT/Pjkt Prefabs/Resources/header.png");
+        private static Texture2D backgroundImage = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/PJKT/Pjkt Prefabs/Resources/background.png");
         
         public static void DrawComponentHeader(string title, string subtitle)
         {
