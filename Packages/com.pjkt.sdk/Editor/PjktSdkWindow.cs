@@ -10,7 +10,7 @@ namespace PJKT.SDK2
 {
     public class PjktSdkWindow : EditorWindow
     {
-        [MenuItem("PJKT SDK/SDK2", priority = 10)]
+        [MenuItem("PJKT SDK/Show SDK Window", priority = 10)]
         public static void ShowWindow()
         {
             var window = GetWindow<PjktSdkWindow>();
