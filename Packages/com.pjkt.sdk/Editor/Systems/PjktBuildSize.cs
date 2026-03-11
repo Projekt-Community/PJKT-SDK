@@ -16,7 +16,7 @@ namespace PJKT.SDK2
     {
 #if UNITY_EDITOR
         //temp for testing
-        [MenuItem("PJKT/TestBuildSize")]
+        [MenuItem("PJKT SDK/Tools/Test Build Size")]
         public static void Test()
         {
             //get descriptor from selected object
