@@ -349,13 +349,19 @@ namespace PJKT.SDK2
                     }
 
                     TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
-                    
-                    TextureImporterFormat format = importer.GetPlatformTextureSettings(buildTarget).format;
-                    TextureImporterPlatformSettings settings = importer.GetPlatformTextureSettings(buildTarget);
+                    TextureImporterPlatformSettings platformSettings = importer.GetPlatformTextureSettings(buildTarget);
+                    TextureImporterFormat format = platformSettings.format;
                     
                     if (format == TextureImporterFormat.Automatic)
                     {
                         format = importer.GetAutomaticFormat(buildTarget);
+                    }
+
+                    //if there are windows overrides report that overriden value
+                    int importedSize = importer.maxTextureSize; //default
+                    if (platformSettings.overridden)
+                    {
+                        importedSize = platformSettings.maxTextureSize;
                     }
 
                     var textureInfo = new TextureInfo
@@ -364,7 +370,7 @@ namespace PJKT.SDK2
                         name = texture.name.Length <= 20 ? texture.name : texture.name.Substring(0, 20) + "...",
                         filetype = path.Substring(path.LastIndexOf('.')),
                         pixelSize = GetOriginalTextureSize(importer),
-                        importedSize = settings.maxTextureSize,
+                        importedSize = importedSize,
                         vRamSize = CalculateTextureVram(texture, format),
                         sizeOnDisk = new FileInfo(path).Length,
                         importer = importer,
