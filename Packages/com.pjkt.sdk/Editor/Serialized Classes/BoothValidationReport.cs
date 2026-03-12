@@ -75,6 +75,7 @@ namespace PJKT.SDK2
         public int BlendShapes;
         public int MaterialSlots;
         public long VramSize;
+        public long SizeOnDisk;
 
 
         //for internal use

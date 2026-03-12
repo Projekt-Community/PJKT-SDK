@@ -624,7 +624,7 @@ namespace PJKT.SDK2
                 Type = type,
                 TriCount = mesh.triangles.Length / 3,
                 VramSize = GetMeshVramSize(mesh),
-                ObjectReference = null,
+                SizeOnDisk = new FileInfo(AssetDatabase.GetAssetPath(mesh)).Length,
             };
         }
         

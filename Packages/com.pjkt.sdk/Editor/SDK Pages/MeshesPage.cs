@@ -39,7 +39,8 @@ namespace PJKT.SDK2
             string meshinfo = $"Mesh: {asset.Name} \n"
                               + $"Triangles: {asset.TriCount} \n"
                               + $"Material Slots: {asset.MaterialSlots} \n"
-                              + "Vram: " + BoothValidator.FormatSize(asset.VramSize);
+                              + "Vram: " + BoothValidator.FormatSize(asset.VramSize) + "\n"
+                                + "Size on Disk: " + BoothValidator.FormatSize(asset.SizeOnDisk) + "\n";
             if (asset.Type == MeshType.SkinnedMesh)
             {
                 color = PjktGraphics.GraphicColors["Settings"];
