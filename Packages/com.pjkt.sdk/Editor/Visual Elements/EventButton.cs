@@ -94,6 +94,7 @@ namespace PJKT.SDK2
 
             Texture2D goodPerfIcon = (Texture2D)EditorGUIUtility.IconContent("P4_CheckOutRemote@2x").image;
             Texture2D badPerfIcon = (Texture2D)EditorGUIUtility.IconContent("P4_DeletedLocal@2x").image;
+            Texture2D unknownPerfIcon = (Texture2D)EditorGUIUtility.IconContent("d__Help@2x").image;
             
             //column 1 //god bless copilot for this
             BoothStats tricount = report.GetStats(StatsType.TriCount);
@@ -118,6 +119,7 @@ namespace PJKT.SDK2
             requirementsColumn2.Add(new RequirementCategory("Max Filesize: " + BoothValidator.FormatSize(requirements.MaxFileSize*1024*1024), (int)filesize.PerformanceRank >= 1 ? goodPerfIcon : badPerfIcon));
             BoothStats vram = report.GetStats(StatsType.Vram);
             requirementsColumn2.Add(new RequirementCategory("Max Vram: " + BoothValidator.FormatSize(requirements.MaxVram * 1024 * 1024), (int)vram.PerformanceRank >= 1 ? goodPerfIcon : badPerfIcon));
+            requirementsColumn2.Add(new RequirementCategory("Max build size: " + BoothValidator.FormatSize(requirements.MaxBuildSize * 1024 * 1024), unknownPerfIcon)); //this is hard to check without locking the editor so its only done on build
             BoothStats text = report.GetStats(StatsType.TMProTexts);
             requirementsColumn2.Add(new RequirementCategory("Max Text: " + requirements.MaxTextMeshPro, (int)text.PerformanceRank >= 1 ? goodPerfIcon : badPerfIcon));
             BoothStats pickups = report.GetStats(StatsType.Pickups);
