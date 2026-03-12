@@ -22,6 +22,8 @@ namespace PJKT.SDK2
         #if !COMPILER_UDONSHARP && UNITY_EDITOR
             private void OnDrawGizmosSelected() 
             {
+                if (!showBounds) return;
+                
                 //----------Draw a box around the booth----------//
                     //Get all renderers
                 Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
@@ -56,14 +58,11 @@ namespace PJKT.SDK2
                 float maxLongestSide = Mathf.Max(MaxDims.x, MaxDims.y, MaxDims.z);
                 bool isTooBig = longestSize > maxLongestSide;
 
-                if (showBounds || isTooBig)
-                {
-                    Gizmos.color = Color.gray;
-                    Gizmos.DrawWireCube(center, _maxBounds);
+                Gizmos.color = Color.gray;
+                Gizmos.DrawWireCube(center, _maxBounds);
 
-                    Gizmos.color = isTooBig ? Color.red : Color.green;
-                    Gizmos.DrawWireCube(center, dims);
-                }
+                Gizmos.color = isTooBig ? Color.red : Color.green;
+                Gizmos.DrawWireCube(center, dims);
             }
         
         private void OnDrawGizmos() 

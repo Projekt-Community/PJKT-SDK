@@ -50,7 +50,7 @@ namespace PJKT.SDK2
             if (window == null) window = EditorWindow.GetWindow<PjktSdkWindow>();
             window.SetEvent(Projekt);
             
-            BoothDescriptor._maxBounds = new Vector3(requirements.MaxDims[0], requirements.MaxDims[2], requirements.MaxDims[1]);
+            BoothDescriptor._maxBounds = new Vector3(requirements.MaxDims[0], requirements.MaxDims[1], requirements.MaxDims[2]);
             BoothValidator.Requirements = requirements;
             BoothValidator.GenerateReport();
             

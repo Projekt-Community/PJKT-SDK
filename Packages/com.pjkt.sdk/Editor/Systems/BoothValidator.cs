@@ -824,9 +824,6 @@ namespace PJKT.SDK2
                 //set all stuff thats on default layer to layer 22
                 if (child.gameObject.layer == 0) child.gameObject.layer = 22;
                 
-                //ignore skinned meshes and pickups
-                if (child.TryGetComponent(typeof(SkinnedMeshRenderer), out _)) continue;
-                
                 //pickups go to layer 23
                 if (child.TryGetComponent(typeof(VRCPickup), out _))
                 {
@@ -848,6 +845,8 @@ namespace PJKT.SDK2
                     }
                 }
                 
+                //ignore skinned meshes and pickups
+                if (child.TryGetComponent(typeof(SkinnedMeshRenderer), out _)) continue;
                 objectPaths.Add(GetGameobjectPath(child.gameObject));
             }
             

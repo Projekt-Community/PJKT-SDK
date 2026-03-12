@@ -43,6 +43,8 @@ namespace PJKT.SDK2
             //if (latest < DateTime.Now) return;
             if (currentProject == null) return;
             SelectedProjekt = currentProject;
+            Vector3 bounds = new  Vector3(currentProject.booth_requirements.MaxDims[0], currentProject.booth_requirements.MaxDims[1], currentProject.booth_requirements.MaxDims[2]);
+            BoothDescriptor._maxBounds = (bounds);
             BoothValidator.Requirements = currentProject.booth_requirements;
             PjktSdkWindow window = EditorWindow.GetWindow<PjktSdkWindow>();
             if (window != null) window.SetEvent(currentProject);
