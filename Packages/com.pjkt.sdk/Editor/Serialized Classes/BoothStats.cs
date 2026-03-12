@@ -31,7 +31,6 @@ namespace PJKT.SDK2
             sb.Append($"Requirements: {RequirementsString}\n");
             sb.Append($"Components: {ComponentList.Count}");
             
-
             return sb.ToString();
         }
     }
