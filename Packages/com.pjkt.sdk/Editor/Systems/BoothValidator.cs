@@ -168,7 +168,7 @@ namespace PJKT.SDK2
             else ranking = BoothPerformanceRanking.Good;
 
             //Return size to 1 decimal place
-            string boundsString = "Bounds: " + size.x.ToString("0.0") + " x " + size.y.ToString("0.0") + " x " + size.z.ToString("0.0") + " (max " + Mathf.Max(maxDims.x, maxDims.y, maxDims.z).ToString("0.0") + ")";
+            string boundsString = "Bounds: " + size.x.ToString("0.0") + " x " + size.y.ToString("0.0") + " x " + size.z.ToString("0.0") + "\n max " + maxDims.ToString("0.0");
             
             return  new BoothStats(StatsType.Bounds, ranking, boundsString, reqs,  new List<object>(renderers));
         }
