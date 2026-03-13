@@ -639,6 +639,21 @@ namespace PJKT.SDK2
                 };
             }
             
+            //fix error with no read/write access
+            if (!mesh.isReadable)
+            {
+                return new MeshAsset()
+                {
+                    BlendShapes = mesh.blendShapeCount,
+                    Name = mesh.name,
+                    MaterialSlots = mesh.subMeshCount,
+                    Type = type,
+                    TriCount = 0,
+                    VramSize = GetMeshVramSize(mesh),
+                    SizeOnDisk = new FileInfo(AssetDatabase.GetAssetPath(mesh)).Length,
+                };
+            }
+            
             return new MeshAsset()
             {
                 BlendShapes = mesh.blendShapeCount,
