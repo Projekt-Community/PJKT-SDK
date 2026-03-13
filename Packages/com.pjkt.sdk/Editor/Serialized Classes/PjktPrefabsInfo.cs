@@ -13,4 +13,5 @@ public class PjktPrefabsInfo
     public string PrefabDescription;
     public string ResourceURL;
     public string DefaultAssetPath;
+    public double Version;
 }
