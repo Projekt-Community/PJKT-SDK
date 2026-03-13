@@ -43,6 +43,7 @@ namespace PJKT.SDK2
             Report = new BoothValidationReport();
             
             if (booth == null) return;
+            Report.Booth = booth;
 
             if (Requirements == null)
             {
@@ -622,6 +623,22 @@ namespace PJKT.SDK2
 
         private static MeshAsset GetAssetForMesh(Mesh mesh, MeshType type)
         {
+            //check for built in resources
+            string path = AssetDatabase.GetAssetPath(mesh);
+            if (path.Contains("unity_builtin_extra") || path.Contains("unity default resources"))
+            {
+                return new MeshAsset()
+                {
+                    BlendShapes = mesh.blendShapeCount,
+                    Name = mesh.name,
+                    MaterialSlots = mesh.subMeshCount,
+                    Type = type,
+                    TriCount = mesh.triangles.Length / 3,
+                    VramSize = Profiler.GetRuntimeMemorySizeLong(mesh),
+                    SizeOnDisk = 0, //cant get size on disk for built in resources
+                };
+            }
+            
             return new MeshAsset()
             {
                 BlendShapes = mesh.blendShapeCount,
@@ -793,6 +810,11 @@ namespace PJKT.SDK2
                 Debug.LogError("<color=#FFBB00><b>PJKT SDK:</b></color> Object does not have a booth descriptor");
                 return;
             }
+
+            if (Report == null || Report.Booth != booth)
+            {
+                Debug.LogError("<color=#FFBB00><b>PJKT SDK:</b></color> Something went wrong, select this booth in the SDK and try again.");
+            }
             
             //set all meshes to low mesh compression
             BoothStats meshes = Report.GetStats(StatsType.TriCount);
@@ -822,10 +844,13 @@ namespace PJKT.SDK2
             }
             
             //get all gameobjects in the booth
+            List<Transform> objects = new List<Transform>();
+            GetChildTransforms(booth.transform, objects);
+            
             if (booth.gameObject.layer == 0) booth.gameObject.layer = 22;
             List<string> objectPaths = new List<string>();
             objectPaths.Add(GetGameobjectPath(booth.gameObject));
-            foreach (Transform child in booth.transform)
+            foreach (Transform child in objects)
             {
                 //set all stuff thats on default layer to layer 22
                 if (child.gameObject.layer == 0) child.gameObject.layer = 22;
@@ -833,22 +858,14 @@ namespace PJKT.SDK2
                 //pickups go to layer 23
                 if (child.TryGetComponent(typeof(VRCPickup), out _))
                 {
-                    child.gameObject.layer = 23;
-                    foreach (Transform pickupChild in child)
-                    {
-                        pickupChild.gameObject.layer = 23;
-                    }
+                    SetLayerRecursively(child, 23);
                     continue;
                 }
                 
                 //canvases and thier children do too.
                 if (child.TryGetComponent(typeof(Canvas), out _))
                 {
-                    child.gameObject.layer = 23;
-                    foreach (Transform canvasChild in child)
-                    {
-                        canvasChild.gameObject.layer = 23;
-                    }
+                    SetLayerRecursively(child, 23);
                 }
                 
                 //ignore skinned meshes and pickups
@@ -908,7 +925,7 @@ namespace PJKT.SDK2
             objectPaths = objectPaths.Where(path => !IsAffectedOrChild(path, affectedPaths)).ToList();
             
             //set flags on remaining objects
-            StaticEditorFlags flags = StaticEditorFlags.OccludeeStatic | StaticEditorFlags.ReflectionProbeStatic | StaticEditorFlags.BatchingStatic;
+            StaticEditorFlags flags = StaticEditorFlags.OccludeeStatic | StaticEditorFlags.ReflectionProbeStatic;
             for (int i = 0; i < objectPaths.Count; i++)
             {
                 GameObject obj = GameObject.Find(objectPaths[i]);
@@ -917,6 +934,25 @@ namespace PJKT.SDK2
                 StaticEditorFlags existingFlags = GameObjectUtility.GetStaticEditorFlags(obj);
                 StaticEditorFlags newFlags = existingFlags | flags;
                 GameObjectUtility.SetStaticEditorFlags(obj, newFlags);
+            }
+        }
+        
+        private static void GetChildTransforms(Transform current, List<Transform> result)
+        {
+            result.Add(current);
+        
+            for (int i = 0; i < current.childCount; i++)
+            {
+                GetChildTransforms(current.GetChild(i), result);
+            }
+        }
+
+        private static void SetLayerRecursively(Transform obj, int layer)
+        {
+            obj.gameObject.layer = layer;
+            foreach (Transform child in obj)
+            {
+                SetLayerRecursively(child, layer);
             }
         }
         

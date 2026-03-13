@@ -20,6 +20,7 @@ namespace PJKT.SDK2
     {
         public BoothPerformanceRanking Overallranking = BoothPerformanceRanking.Error;
         public readonly List<BoothStats> Stats = new List<BoothStats>();
+        public BoothDescriptor Booth;
 
         public BoothStats GetStats(StatsType statsType)
         {
