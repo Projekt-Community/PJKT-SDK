@@ -32,7 +32,8 @@ namespace PJKT.SDK2
                 string textureInfo = $"Base Resolution: {texture.pixelSize[0]} x {texture.pixelSize[1]} \n"
                                      + $"Max Texture Size: {texture.importedSize} \n"
                                      + $"Format: {texture.filetype} \n"
-                                     + $"Vram: {BoothValidator.FormatSize(texture.vRamSize)}\n\n";
+                                     + $"Vram: {BoothValidator.FormatSize(texture.vRamSize)}\n"
+                                     + $"Size on Disk: {BoothValidator.FormatSize(texture.sizeOnDisk)}\n\n";
                 
                 string matsinfo = "Used in Materials: \n";
                 foreach (Material mat in texture.materials) matsinfo += mat.name + "\n";

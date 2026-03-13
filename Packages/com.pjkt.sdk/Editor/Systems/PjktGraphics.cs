@@ -88,6 +88,9 @@ namespace PJKT.SDK2
 
         public static async Task<Texture2D> GetWebTexture(string url)
         {
+            //if key is null return normal pjkt logo
+            if (string.IsNullOrEmpty(url)) return GetGraphic("PjktLogo");
+            
             //if we dl it before then give em that
             if (downloadedImageCache.ContainsKey(url)) return downloadedImageCache[url];
             

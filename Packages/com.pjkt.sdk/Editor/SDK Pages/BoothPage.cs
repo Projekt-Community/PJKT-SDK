@@ -26,6 +26,12 @@ namespace PJKT.SDK2
 
         }
 
+        public void RefreshBoothInfo()
+        {
+            if (selectedButton == null) return;
+            selectedButton.CheckBooth();
+        }
+
         private void RefreshBoothButtons()
         {
             //create an info panel for each booth

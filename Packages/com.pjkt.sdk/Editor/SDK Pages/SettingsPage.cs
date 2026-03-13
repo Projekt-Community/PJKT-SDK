@@ -1,9 +1,13 @@
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace PJKT.SDK2
 {
     public class SettingsPage : SDKPage
     {
+        private const string sdkPrefabsListUrl = "https://raw.githubusercontent.com/ProjektCommunity/PJKT-SDK-Prefabs/refs/heads/main/PrefabsList.json";
+        private PjktPrefabsList prefabsList;
+        
         public override void OnTabEnable()
         {
             style.display = DisplayStyle.Flex;
@@ -12,25 +16,41 @@ namespace PJKT.SDK2
             panel.style.flexGrow = 1;
             topArea.Add(panel);
             
-            //2023 prefab booth
-            ExamplePrefab booth2023 = new ExamplePrefab("PJKT2023 Prefab Booth", "A simple booth used in the 2023 Projekt:Fest event", "Assets/PJKT/Booth 2023/Booth Prefab.prefab", "Packages/com.pjkt.sdk/Runtime/Examples/PJKT2023PrefabBooth.unitypackage");
-            scrollView.Add(booth2023);
+            //warning for removing old version of packages
+            BoothError warning = new  BoothError("If you have previously installed any of the example packages, please remove them before installing the new versions. Everything should be under Assets/PJKT.", BoothErrorType.Warning);
+            topArea.Add(warning);
             
-            //2024 booth prefab
-            ExamplePrefab booth2024 = new ExamplePrefab("PJKT2024 Prefab Booth", "A simple booth used in the 2024 Projekt:Fest event", "Assets/PJKT/Booth 2024/Booth Prefab.prefab", "Packages/com.pjkt.sdk/Runtime/Examples/PJKT2024PrefabBooth.unitypackage");
-            scrollView.Add(booth2024);
-            
-            //2025 booth prefab
-            ExamplePrefab booth2025 = new ExamplePrefab("PJKT2025 Prefab Booth", "A simple booth used in the 2025 Projekt:Fest event", "Assets/PJKT/Prefab Booth 2025/PJKT Booth 2025 Prefab.prefab", "Packages/com.pjkt.sdk/Runtime/Examples/PJKT Booth 2025.unitypackage");
-            scrollView.Add(booth2025);
-            
-            //2025button prefabs
-            ExamplePrefab button2025 = new ExamplePrefab("PJKT2025 Button Prefabs", "A collection of buttons for toggling objects and animations", "Assets/PJKT/Button Prefabs 2025/Button Prefabs/Object Toggles/PJKT Toggle Button.prefab", "Packages/com.pjkt.sdk/Runtime/Examples/PJKT Button Prefabs 2025.unitypackage");
-            scrollView.Add(button2025);
-            
-            //fang 2026 booth
-            ExamplePrefab fang2026 = new ExamplePrefab("Fang2026 Prefab Booth", "A simple booth used in the 2026 Projekt:Fang event", "Assets/PJKT/Fang 26 Prefab booth/Prefab Booth.fbx", "Packages/com.pjkt.sdk/Runtime/Examples/Fang 2026 Booth.unitypackage");
-            scrollView.Add(fang2026);
+            //get the json and parse
+            FetchPrefabsJson();
+        }
+
+        private async void FetchPrefabsJson()
+        {
+            string response;
+            using (var httpClient = new System.Net.Http.HttpClient())
+            {
+                try
+                {
+                    response = await httpClient.GetStringAsync(sdkPrefabsListUrl);
+                    prefabsList = JsonUtility.FromJson<PjktPrefabsList>(response);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError("Failed to fetch prefabs list: " + e.Message);
+                }
+                
+                if (prefabsList == null) return;
+                CreateButtons();
+            }
+        }
+
+        private void CreateButtons()
+        {
+            foreach (PjktPrefabsInfo prefab in prefabsList.Prefabs)
+            {
+                ExamplePrefab prefabButton = new ExamplePrefab(prefab.PrefabName, prefab.PrefabDescription, prefab.DefaultAssetPath, prefab.ResourceURL);
+                scrollView.Add(prefabButton);
+            }
         }
     }
 }

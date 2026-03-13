@@ -20,6 +20,7 @@ namespace PJKT.SDK2
     {
         public BoothPerformanceRanking Overallranking = BoothPerformanceRanking.Error;
         public readonly List<BoothStats> Stats = new List<BoothStats>();
+        public BoothDescriptor Booth;
 
         public BoothStats GetStats(StatsType statsType)
         {
@@ -63,6 +64,7 @@ namespace PJKT.SDK2
         AvatarPeds,
         Portals,
         UdonBehaviours,
+        InvalidObjects,
     }
 
     public class MeshAsset
@@ -74,6 +76,7 @@ namespace PJKT.SDK2
         public int BlendShapes;
         public int MaterialSlots;
         public long VramSize;
+        public long SizeOnDisk;
 
 
         //for internal use
@@ -89,6 +92,7 @@ namespace PJKT.SDK2
         public int[] pixelSize;
         public int importedSize;
         public long vRamSize;
+        public long sizeOnDisk;
         public TextureImporter importer;
         public List<Material> materials;
     }

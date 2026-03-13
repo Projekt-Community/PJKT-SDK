@@ -43,6 +43,7 @@ namespace PJKT.SDK2
             Report = new BoothValidationReport();
             
             if (booth == null) return;
+            Report.Booth = booth;
 
             if (Requirements == null)
             {
@@ -105,6 +106,9 @@ namespace PJKT.SDK2
             List<MeshAsset> meshAssets = Report.GetStats(StatsType.Mesh).ComponentList.Cast<MeshAsset>().ToList();
             Report.Stats.Add(GetVram(textureInfos, meshAssets));
             Report.Stats.Add(GetFileSize());
+            
+            //new invalid object, just directional lights and reflection probes for now
+            Report.Stats.Add(GetInvalidObjects());
 
             Report.Overallranking = OverallRank(); //done :3
             
@@ -164,7 +168,7 @@ namespace PJKT.SDK2
             else ranking = BoothPerformanceRanking.Good;
 
             //Return size to 1 decimal place
-            string boundsString = "Bounds: " + size.x.ToString("0.0") + " x " + size.y.ToString("0.0") + " x " + size.z.ToString("0.0") + " (max " + Mathf.Max(maxDims.x, maxDims.y, maxDims.z).ToString("0.0") + ")";
+            string boundsString = "Bounds: " + size.x.ToString("0.0") + " x " + size.y.ToString("0.0") + " x " + size.z.ToString("0.0") + "\n max " + maxDims.ToString("0.0");
             
             return  new BoothStats(StatsType.Bounds, ranking, boundsString, reqs,  new List<object>(renderers));
         }
@@ -196,6 +200,7 @@ namespace PJKT.SDK2
         private static BoothStats GetStaticMeshes(List<MeshFilter> staticMeshes)
         {
             Texture icon = AssetPreview.GetMiniTypeThumbnail(typeof(MeshFilter));
+            List<PerformanceTip> tips = new List<PerformanceTip>();
             
             //create a MeshAsset for each one
             List<MeshAsset> meshAssets = new List<MeshAsset>();
@@ -209,8 +214,14 @@ namespace PJKT.SDK2
                 meshAssets.Add(asset);
             }
             
+            //check and warn for probuilder
+            if (PjktPackageChecker.PackageSources.ContainsKey("com.unity.probuilder"))
+            {
+                tips.Add(new PerformanceTip("Probuilder detected in project. If you are using it, make sure to export instanced meshes to files before uploading.", BoothErrorType.Warning));
+            }
+            
             BoothPerformanceRanking ranking = staticMeshes.Count == Requirements.MaxStaticMeshes ? BoothPerformanceRanking.Ok : staticMeshes.Count > Requirements.MaxStaticMeshes ? BoothPerformanceRanking.Bad : BoothPerformanceRanking.Good;
-            return new BoothStats(StatsType.Mesh, ranking, "Static Meshes: " + staticMeshes.Count + "/" + Requirements.MaxStaticMeshes, $"Max Static Meshes: {Requirements.MaxStaticMeshes}", new List<object>(meshAssets));
+            return new BoothStats(StatsType.Mesh, ranking, "Static Meshes: " + staticMeshes.Count + "/" + Requirements.MaxStaticMeshes, $"Max Static Meshes: {Requirements.MaxStaticMeshes}", new List<object>(meshAssets), tips);
         }
         private static BoothStats GetSkinnedMeshes(List<SkinnedMeshRenderer> skinnedMeshes)
         {
@@ -263,13 +274,26 @@ namespace PJKT.SDK2
         }
         private static BoothStats GetMaterials(List<Renderer> renderers)
         {
+            List<PerformanceTip> tips = new List<PerformanceTip>();
             HashSet<Material> materials = new HashSet<Material>();
             foreach (Renderer renderer in renderers)
             {
                 materials.UnionWith(renderer.sharedMaterials);
             }
+            
+            //check for non vrc shaders
+            foreach (var mat in materials)
+            {
+                if (mat == null) continue;
+                if (!mat.shader.name.StartsWith("VRChat/"))
+                {
+                    tips.Add(new PerformanceTip("Custom shaders found. If you arent doing something special, please try to use the built in VRChat shaders for the best performance.", BoothErrorType.Info));
+                    break;
+                }
+            }
+            
             BoothPerformanceRanking ranking = materials.Count == Requirements.MaxMaterial ? BoothPerformanceRanking.Ok : materials.Count > Requirements.MaxMaterial ? BoothPerformanceRanking.Bad : BoothPerformanceRanking.Good;
-            return new BoothStats(StatsType.Materials, ranking, "Materials: " + materials.Count + "/" + Requirements.MaxMaterial, $"Max Materials: {Requirements.MaxMaterial}", new List<object>(materials));
+            return new BoothStats(StatsType.Materials, ranking, "Materials: " + materials.Count + "/" + Requirements.MaxMaterial, $"Max Materials: {Requirements.MaxMaterial}", new List<object>(materials), tips);
         }
         private static BoothStats GetTextures(List<Material> materials)
         {
@@ -326,13 +350,19 @@ namespace PJKT.SDK2
                     }
 
                     TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
-                    
-                    TextureImporterFormat format = importer.GetPlatformTextureSettings(buildTarget).format;
-                    TextureImporterPlatformSettings settings = importer.GetPlatformTextureSettings(buildTarget);
+                    TextureImporterPlatformSettings platformSettings = importer.GetPlatformTextureSettings(buildTarget);
+                    TextureImporterFormat format = platformSettings.format;
                     
                     if (format == TextureImporterFormat.Automatic)
                     {
                         format = importer.GetAutomaticFormat(buildTarget);
+                    }
+
+                    //if there are windows overrides report that overriden value
+                    int importedSize = importer.maxTextureSize; //default
+                    if (platformSettings.overridden)
+                    {
+                        importedSize = platformSettings.maxTextureSize;
                     }
 
                     var textureInfo = new TextureInfo
@@ -341,8 +371,9 @@ namespace PJKT.SDK2
                         name = texture.name.Length <= 20 ? texture.name : texture.name.Substring(0, 20) + "...",
                         filetype = path.Substring(path.LastIndexOf('.')),
                         pixelSize = GetOriginalTextureSize(importer),
-                        importedSize = settings.maxTextureSize,
+                        importedSize = importedSize,
                         vRamSize = CalculateTextureVram(texture, format),
+                        sizeOnDisk = new FileInfo(path).Length,
                         importer = importer,
                         materials = new List<Material>()
                         {
@@ -420,8 +451,15 @@ namespace PJKT.SDK2
         }
         private static BoothStats GetTextMeshPro(List<TMP_Text> textMeshes)
         {
+            //warnign about font
+            List<PerformanceTip> tips = new List<PerformanceTip>();
+            if (textMeshes.Count > 0)
+            {
+                tips.Add(new PerformanceTip("Custom fonts on TMP might be overriden by our font.", BoothErrorType.Info));
+            }
+            
             BoothPerformanceRanking ranking = textMeshes.Count == Requirements.MaxTextMeshPro ? BoothPerformanceRanking.Ok : textMeshes.Count > Requirements.MaxTextMeshPro ? BoothPerformanceRanking.Bad : BoothPerformanceRanking.Good;
-            return new BoothStats(StatsType.TMProTexts, ranking, "Text Mesh Pro: " + textMeshes.Count + "/" + Requirements.MaxTextMeshPro, $"Max TMP: {Requirements.MaxTextMeshPro}", new List<object>(textMeshes));
+            return new BoothStats(StatsType.TMProTexts, ranking, "Text Mesh Pro: " + textMeshes.Count + "/" + Requirements.MaxTextMeshPro, $"Max TMP: {Requirements.MaxTextMeshPro}", new List<object>(textMeshes), tips);
         }
         private static BoothStats GetParticles(List<ParticleSystem> particles)
         {
@@ -496,9 +534,6 @@ namespace PJKT.SDK2
                 ranking = BoothPerformanceRanking.Error;
             }
             else ranking = behaviours.Count == Requirements.MaxUdonScripts ? BoothPerformanceRanking.Ok : behaviours.Count > Requirements.MaxUdonScripts ? BoothPerformanceRanking.Bad : BoothPerformanceRanking.Good;
-
-            
-            
             
             return new BoothStats(StatsType.UdonBehaviours, ranking, detailsString, $"Max Udon Behaviours: {Requirements.MaxUdonScripts}", new List<object>(behaviourinfos));
         }
@@ -547,6 +582,33 @@ namespace PJKT.SDK2
             BoothPerformanceRanking ranking = sizeOnDisk == maxFileSize ? BoothPerformanceRanking.Ok : sizeOnDisk > maxFileSize ? BoothPerformanceRanking.Bad : BoothPerformanceRanking.Good;
             return new BoothStats(StatsType.FileSize, ranking, "Approx file size: " + FormatSize(sizeOnDisk) + " / " + FormatSize(maxFileSize), $"Max Filesize: {maxFileSize}",new List<object>());
         }
+
+        private static BoothStats GetInvalidObjects()
+        {
+            string detailsString = "";
+            BoothPerformanceRanking ranking = BoothPerformanceRanking.Good;
+            
+            //get all reflection probes and directional lights
+            ReflectionProbe[] probes = SelectedBooth.gameObject.GetComponentsInChildren<ReflectionProbe>(true);
+            Light[] lights = SelectedBooth.gameObject.GetComponentsInChildren<Light>(true);
+            
+            if (probes.Length > 0)
+            {
+                detailsString += "Booth contains reflection probes. Please remove these";
+                ranking = BoothPerformanceRanking.Bad;
+            }
+
+            int directionalLights = 0;
+            foreach (Light light in lights) if (light.type == LightType.Directional) directionalLights++;
+            if (directionalLights > 0)
+            {
+                if (detailsString != "") detailsString += "\n";
+                detailsString += "Booth contains directional lights. Please remove these";
+                ranking = BoothPerformanceRanking.Bad;
+            }
+            
+            return new BoothStats(StatsType.InvalidObjects, ranking, detailsString, "Booths cannot contain Directional Lights or Reflection Probes", null);
+        }
         
         public static string FormatSize(long size)
         {
@@ -561,6 +623,37 @@ namespace PJKT.SDK2
 
         private static MeshAsset GetAssetForMesh(Mesh mesh, MeshType type)
         {
+            //check for built in resources
+            string path = AssetDatabase.GetAssetPath(mesh);
+            if (path.Contains("unity_builtin_extra") || path.Contains("unity default resources"))
+            {
+                return new MeshAsset()
+                {
+                    BlendShapes = mesh.blendShapeCount,
+                    Name = mesh.name,
+                    MaterialSlots = mesh.subMeshCount,
+                    Type = type,
+                    TriCount = mesh.triangles.Length / 3,
+                    VramSize = Profiler.GetRuntimeMemorySizeLong(mesh),
+                    SizeOnDisk = 0, //cant get size on disk for built in resources
+                };
+            }
+            
+            //fix error with no read/write access
+            if (!mesh.isReadable)
+            {
+                return new MeshAsset()
+                {
+                    BlendShapes = mesh.blendShapeCount,
+                    Name = mesh.name,
+                    MaterialSlots = mesh.subMeshCount,
+                    Type = type,
+                    TriCount = 0,
+                    VramSize = GetMeshVramSize(mesh),
+                    SizeOnDisk = new FileInfo(AssetDatabase.GetAssetPath(mesh)).Length,
+                };
+            }
+            
             return new MeshAsset()
             {
                 BlendShapes = mesh.blendShapeCount,
@@ -569,7 +662,7 @@ namespace PJKT.SDK2
                 Type = type,
                 TriCount = mesh.triangles.Length / 3,
                 VramSize = GetMeshVramSize(mesh),
-                ObjectReference = null,
+                SizeOnDisk = new FileInfo(AssetDatabase.GetAssetPath(mesh)).Length,
             };
         }
         
@@ -703,6 +796,28 @@ namespace PJKT.SDK2
             return bytes;
         }
 
+        //for debugging
+        [MenuItem("PJKT SDK/Tools/Run booth preprocessing")]
+        public static void PreProcessBooth()
+        {
+            if (Selection.activeGameObject == null)
+            {
+                EditorUtility.DisplayDialog("PJKT SDK", "Please select a gameobject with a booth descriptor component first.", "OK");
+                return;
+            }
+
+            BoothDescriptor booth = Selection.activeGameObject.GetComponent<BoothDescriptor>();
+            if (booth == null)
+            {
+                EditorUtility.DisplayDialog("PJKT SDK", "Please select a gameobject with a booth descriptor component first.", "OK");
+                return;
+            }
+            
+            if (!BoothInfoButton.ConfirmBoothChanges()) return;
+            
+            PrepareBooth(booth);
+        }
+        
         public static void PrepareBooth(BoothDescriptor booth)
         {
             if (booth == null)
@@ -710,26 +825,97 @@ namespace PJKT.SDK2
                 Debug.LogError("<color=#FFBB00><b>PJKT SDK:</b></color> Object does not have a booth descriptor");
                 return;
             }
+
+            if (Report == null || Report.Booth != booth)
+            {
+                Debug.LogError("<color=#FFBB00><b>PJKT SDK:</b></color> Something went wrong, select this booth in the SDK and try again.");
+            }
+            
+            //set all meshes to low mesh compression
+            BoothStats meshes = Report.GetStats(StatsType.TriCount);
+            foreach (var mesh in meshes.ComponentList)
+            {
+                string assetpath = (Mesh)mesh is Mesh ? AssetDatabase.GetAssetPath((Mesh)mesh) : null;
+                if (assetpath == null || assetpath.Contains(".asset")) continue;
+                ModelImporter importer = AssetImporter.GetAtPath(assetpath) as ModelImporter;
+                if (importer == null) continue;
+                if (importer.meshCompression < ModelImporterMeshCompression.Low)
+                {
+                    importer.meshCompression = ModelImporterMeshCompression.Low;
+                    importer.SaveAndReimport();
+                }
+            }
+            
+            //set all textures limits to 1k on android
+            BoothStats textures = Report.GetStats(StatsType.Textures);
+            foreach (TextureInfo info in textures.ComponentList)
+            {
+                if (info.importer == null) continue;
+                TextureImporterPlatformSettings settings = info.importer.GetPlatformTextureSettings("Android");
+                settings.overridden = true;
+                settings.maxTextureSize = Mathf.Min(settings.maxTextureSize, 1024);
+                info.importer.SetPlatformTextureSettings(settings);
+                info.importer.SaveAndReimport();
+            }
             
             //get all gameobjects in the booth
+            List<Transform> objects = new List<Transform>();
+            GetChildTransforms(booth.transform, objects);
+            
+            if (booth.gameObject.layer == 0) booth.gameObject.layer = 22;
             List<string> objectPaths = new List<string>();
             objectPaths.Add(GetGameobjectPath(booth.gameObject));
-            foreach (Transform child in booth.transform)
+            foreach (Transform child in objects)
             {
+                //set all stuff thats on default layer to layer 22
+                if (child.gameObject.layer == 0) child.gameObject.layer = 22;
+                
+                //pickups go to layer 23
+                if (child.TryGetComponent(typeof(VRCPickup), out _))
+                {
+                    SetLayerRecursively(child, 23);
+                    continue;
+                }
+                
+                //canvases and thier children do too.
+                if (child.TryGetComponent(typeof(Canvas), out _))
+                {
+                    SetLayerRecursively(child, 23);
+                }
+                
                 //ignore skinned meshes and pickups
                 if (child.TryGetComponent(typeof(SkinnedMeshRenderer), out _)) continue;
-                if (child.TryGetComponent(typeof(VRCPickup), out _)) continue;
                 objectPaths.Add(GetGameobjectPath(child.gameObject));
+            }
+            
+            //remove reflection probes
+            ReflectionProbe[] probes = booth.GetComponentsInChildren<ReflectionProbe>();
+            for (int i = 0; i < probes.Length; i++)
+            {
+                GameObject.DestroyImmediate(probes[i]);
             }
             
             //find all lights and limit
             Light[] lights = booth.GetComponentsInChildren<Light>();
             for (int i = 0; i < lights.Length; i++)
             {
+                if (lights[i].type == LightType.Directional)
+                {
+                    GameObject.DestroyImmediate(lights[i]);
+                    continue;
+                }
+                
                 //light limits
                 lights[i].lightmapBakeType = LightmapBakeType.Baked;
                 lights[i].intensity = Mathf.Clamp(lights[i].intensity, 0, 10);
                 lights[i].range = Mathf.Clamp(lights[i].range, 0, 7);
+            }
+            
+            //limit audio to 3d
+            AudioSource[] audioSources = booth.GetComponentsInChildren<AudioSource>();
+            for (int i = 0; i < audioSources.Length; i++)
+            {
+                audioSources[i].spatialBlend = 1;
             }
 
             //get all animations from the report
@@ -754,7 +940,7 @@ namespace PJKT.SDK2
             objectPaths = objectPaths.Where(path => !IsAffectedOrChild(path, affectedPaths)).ToList();
             
             //set flags on remaining objects
-            StaticEditorFlags flags = StaticEditorFlags.OccludeeStatic | StaticEditorFlags.ReflectionProbeStatic | StaticEditorFlags.BatchingStatic;
+            StaticEditorFlags flags = StaticEditorFlags.OccludeeStatic | StaticEditorFlags.ReflectionProbeStatic;
             for (int i = 0; i < objectPaths.Count; i++)
             {
                 GameObject obj = GameObject.Find(objectPaths[i]);
@@ -763,6 +949,25 @@ namespace PJKT.SDK2
                 StaticEditorFlags existingFlags = GameObjectUtility.GetStaticEditorFlags(obj);
                 StaticEditorFlags newFlags = existingFlags | flags;
                 GameObjectUtility.SetStaticEditorFlags(obj, newFlags);
+            }
+        }
+        
+        private static void GetChildTransforms(Transform current, List<Transform> result)
+        {
+            result.Add(current);
+        
+            for (int i = 0; i < current.childCount; i++)
+            {
+                GetChildTransforms(current.GetChild(i), result);
+            }
+        }
+
+        private static void SetLayerRecursively(Transform obj, int layer)
+        {
+            obj.gameObject.layer = layer;
+            foreach (Transform child in obj)
+            {
+                SetLayerRecursively(child, layer);
             }
         }
         

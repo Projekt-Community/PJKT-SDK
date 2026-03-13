@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using PJKT.SDK2.Extras;
 using PJKT.SDK2.NET;
 using UnityEditor;
@@ -19,8 +20,13 @@ namespace PJKT.SDK2
         private VisualElement boothPreview => this.Q<VisualElement>("PreviewImage");
         private VisualElement boothIssues => this.Q<VisualElement>("Booth_Issues");
         private Button uploadButton => this.Q<Button>("Upload_Button");
-        private Button assessButton => this.Q<Button>("AssessBoothButton");
-        private Button buildTestButton => this.Q<Button>("BuildTest_Button"); 
+        private Button exportButton => this.Q<Button>("AssessBoothButton");
+        //private Button buildTestButton => this.Q<Button>("BuildTest_Button"); 
+        
+        //community options
+        private Label currentCommunity => this.Q<Label>("CurrentOption");
+        private VisualElement communityOptions => this.Q<VisualElement>("CommunityOptions");
+        private List<string> communityNames = new List<string>();
 
         public BoothDescriptor booth { get; private set; }
 
@@ -35,19 +41,88 @@ namespace PJKT.SDK2
             boothPreview.style.backgroundImage = AssetPreview.GetAssetPreview(boothDescriptor.gameObject);
             
             uploadButton.RegisterCallback<ClickEvent>(UploadBooth);
-            assessButton.RegisterCallback<ClickEvent>(CheckBooth);
-            buildTestButton.RegisterCallback<ClickEvent>(BuildAndTestBooth);
+            exportButton.RegisterCallback<ClickEvent>(ExportBoothFiles);
+            //buildTestButton.RegisterCallback<ClickEvent>(BuildAndTestBooth);
 
             StyleCursor cursor = SillyCursors.GetSillyCursor();
             uploadButton.style.cursor = cursor;
-            assessButton.style.cursor = cursor;
-            buildTestButton.style.cursor = cursor;
+            exportButton.style.cursor = cursor;
+            //buildTestButton.style.cursor = cursor;
+            
+            currentCommunity.RegisterCallback<ClickEvent>(ShowCommunities);
+            currentCommunity.text = booth.currentCommunity;
+            
+            communityOptions.RegisterCallback<MouseLeaveEvent>(HideCommunityOptions);
+            FillCommunities();
         }
 
-        private void CheckBooth(ClickEvent evt)
+        
+        public void CheckBooth()
         {
             boothIssues.Clear();
             SelectBooth(); //may not wanna do this
+        }
+        
+        private void FillCommunities()
+        {
+            if (Authentication.ActiveUser == null) return;
+            
+            //destroy all children in the community options
+            communityOptions.Clear();
+            communityNames.Clear();
+            
+            //clone the current community option for each community in the list
+            foreach (var community in Authentication.ActiveUser.communityMemberships)
+            {
+                Label communityOption = new Label(community.community.name);
+                communityOption.style.unityFontStyleAndWeight = FontStyle.Bold;
+                communityOption.style.color = Color.white;
+
+                communityOption.RegisterCallback<ClickEvent>(ChangeCommunity);
+                communityOption.RegisterCallback<MouseEnterEvent>(HighlightOption);
+                communityOption.RegisterCallback<MouseLeaveEvent>(UnhighlightOption);
+                communityOptions.Add(communityOption);
+                communityNames.Add(community.community.name);
+            }
+        }
+        
+        private void ShowCommunities(ClickEvent evt)
+        {
+            if (communityOptions.childCount == 0) return;
+            communityOptions.style.display = DisplayStyle.Flex;
+        }
+
+        private void HideCommunityOptions(MouseLeaveEvent evt)
+        {
+            communityOptions.style.display = DisplayStyle.None;
+        }
+        
+        private void ChangeCommunity(ClickEvent evt)
+        {
+            Label label = evt.target as Label;
+            if (label == null) return;
+            
+            SerializedObject so = new SerializedObject(booth);
+            so.FindProperty("currentCommunity").stringValue = label.text;
+            so.ApplyModifiedProperties();
+            currentCommunity.text = label.text;
+            communityOptions.style.display = DisplayStyle.None;
+        }
+
+        private void HighlightOption(MouseEnterEvent evt)
+        {
+            Label label = evt.target as Label;
+            if (label == null) return;
+            
+            label.style.backgroundColor = new StyleColor(new Color(0f, 0.4f, 0.6f, 0.8f));
+        }
+        
+        private void UnhighlightOption(MouseLeaveEvent evt)
+        {
+            Label label = evt.target as Label;
+            if (label == null) return;
+            
+            label.style.backgroundColor = new StyleColor(Color.clear);
         }
         
         public void SelectBooth()
@@ -64,7 +139,7 @@ namespace PJKT.SDK2
                                 vram.DetailsString + "\n" +
                                 fileSize.DetailsString;
             boothOptions.style.display = DisplayStyle.Flex;
-            assessButton.style.display = DisplayStyle.Flex;
+            exportButton.style.display = DisplayStyle.Flex;
             boothSelectButton.style.maxWidth = StyleKeyword.None;
             boothSelectButton.style.minWidth = 250;
             boothSelectButton.style.flexGrow = 1;
@@ -74,6 +149,19 @@ namespace PJKT.SDK2
                 uploadButton.SetEnabled(false);
                 uploadButton.text = "Select an event to upload";
                 boothIssues.Add(new BoothError("Select the event you want to upload for first.", BoothErrorType.Warning));
+                return;
+            }
+            
+            //enforce sdk version
+            string installedSdkVer = PjktPackageChecker.PackageSources["com.pjkt.sdk"];
+            string[] sdkVersionParts = installedSdkVer.Split('.');
+            double sdkVer = double.Parse($"{sdkVersionParts[0]}.{sdkVersionParts[1]}");
+            double reqSdkVer = PjktEventManager.SelectedProjekt.booth_requirements.SdkVersion;
+            if (reqSdkVer > sdkVer)
+            {
+                uploadButton.SetEnabled(false);
+                uploadButton.text = "SDK out of date";
+                boothIssues.Add(new BoothError($"This event requires SDK version {reqSdkVer}.0 or newer. Currently installed version: {installedSdkVer}. Please update using the VRChat Creator Companion.", BoothErrorType.Error));
                 return;
             }
             
@@ -93,6 +181,11 @@ namespace PJKT.SDK2
                 {
                     boothIssues.Add(new BoothError(stats.DetailsString, BoothErrorType.Error));
                 }
+
+                foreach (var tip in stats.PerformanceTips)
+                {
+                    boothIssues.Add(new BoothError(tip.message, tip.errorType));
+                }
             }
             
             if (BoothValidator.Report.Overallranking < BoothPerformanceRanking.Ok)
@@ -100,19 +193,21 @@ namespace PJKT.SDK2
                 uploadButton.SetEnabled(false);
                 uploadButton.text = "Fix errors before uploading";
             }
+            else ResetUploadButton();
         }
         
         public void DeselectBooth()
         {
             boothOptions.style.display = DisplayStyle.None;
-            assessButton.style.display = DisplayStyle.None;
+            exportButton.style.display = DisplayStyle.None;
             boothSelectButton.style.maxWidth = 112;
             boothSelectButton.style.minWidth = 112;
             style.flexGrow = 0;
             boothIssues.Clear();
         }
 
-        private async void BuildAndTestBooth(ClickEvent evt)
+        //getting rid of this
+        /*private async void BuildAndTestBooth(ClickEvent evt)
         {
             //check if user is logged into vrcsdk
             if (!VRC.Core.APIUser.IsLoggedIn)
@@ -134,6 +229,28 @@ namespace PJKT.SDK2
             //refresh booths page
             PjktSdkWindow window = EditorWindow.GetWindow<PjktSdkWindow>();
             window.RefreshPage();
+        }*/
+
+        //basically creates the zip and stops there
+        private void ExportBoothFiles(ClickEvent evt)
+        {
+            string path = EditorUtility.SaveFilePanel("Export Booth", "", booth.currentCommunity + ".zip", "zip");
+            if (string.IsNullOrEmpty(path)) return;
+
+            if (!ConfirmBoothChanges()) return;
+            BoothValidator.PrepareBooth(booth);
+            
+            PjktFileExporter exporter = new PjktFileExporter(booth.currentCommunity, path);
+            string packagePath = exporter.CreateBoothfile(booth.gameObject);
+            
+            if (string.IsNullOrEmpty(packagePath))
+            {
+                //failed to create zip for some reason
+                PjktSdkWindow.Notify($"Failed to create booth package. Ask for help on the discord.", BoothErrorType.Error);
+                return;
+            }
+            
+                PjktSdkWindow.Notify($"Booth exported to {packagePath}");
         }
 
         private async void UploadBooth(ClickEvent evt)
@@ -186,6 +303,14 @@ namespace PJKT.SDK2
                 return;
             }
             
+            //copyright disclaimer
+            if (!EditorUtility.DisplayDialog("Copyright Disclaimer", "By uploading this booth you confirm that you have the rights to all the content in this booth and that you are allowed to upload it to VRChat. If you do not have the rights to any of the content in this booth please do not upload it. If you are unsure about the rights of any content in your booth please ask for help on the discord. By uploading this booth you hereby give Projekt: Community a licence to use the uploaded content within our VRChat worlds for the event, as well as permission to appear in our media and promotional content.", "I have the rights", "Cancel Upload"))
+            {
+                PjktSdkWindow.Notify("Upload canceled", BoothErrorType.Warning);
+                ResetUploadButton();
+                return;
+            }
+            
             //prepare the booth
             if (!ConfirmBoothChanges())
             {
@@ -211,13 +336,20 @@ namespace PJKT.SDK2
             uploadButton.text = "Build and upload Booth";
             uploadButton.SetEnabled(true);
         }
-
-        private bool ConfirmBoothChanges()
+        
+        public static bool ConfirmBoothChanges()
         {
             string message = $"This will make the following changes to your booth: " +
                              $"\nAll Lights will be set to baked" +
                              $"\nAll lights will have their range and intensity limited" +
+                             $"\nAny directional lights will be removed" +
                              $"\nAll non animated objects will have their static flags adjusted" +
+                             $"\nAll reflection probes will be removed" +
+                             $"\nAll audio sources will be set to 3d" +
+                             $"\nObjects on default layer will be moved to layer 22 for internal use" +
+                             $"\nPickups, canvases, and thier children will be moved to layer 23 for internal use" +
+                             $"\nAll meshes will be set to low compression at a minimum" +
+                             $"\nAll textures will be set to a maximum size of 1024 on android" +
                              $"\n\nIf there is any unusual behaviour after this process please let us know on the discord.";
             if (!EditorUtility.DisplayDialog("Confirm changes", message, "Go for it", "Actually, hold up"))
             {

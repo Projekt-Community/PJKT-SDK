@@ -11,7 +11,7 @@ namespace PJKT.SDK2
 
     public static class FindSharedMeshFix
     {
-        [MenuItem("PJKT/Fix Mesh Instances")]
+        [MenuItem("PJKT SDK/Tools/Fix Mesh Instances")]
         public static void FixMeshInstances()
         {
             //find all booths

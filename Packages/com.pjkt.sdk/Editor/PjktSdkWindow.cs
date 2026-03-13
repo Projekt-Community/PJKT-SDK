@@ -10,7 +10,7 @@ namespace PJKT.SDK2
 {
     public class PjktSdkWindow : EditorWindow
     {
-        [MenuItem("PJKT SDK/SDK2")]
+        [MenuItem("PJKT SDK/Show SDK Window", priority = 10)]
         public static void ShowWindow()
         {
             var window = GetWindow<PjktSdkWindow>();
@@ -21,8 +21,15 @@ namespace PJKT.SDK2
         private VisualElement _sdkPageView;
         private ScrollView _tabsScrollView;
         private Notification _notification;
+        
+        //event selector stuff
+        private Label currentEvent;
+        private VisualElement eventOptions;
+        private VisualElement eventLogo;
+        private List<string> eventNames = new List<string>();
 
-        SdkTab _selectedTab;
+        private SdkTab _selectedTab;
+        private SdkTab _defaultTab;
         private async void OnEnable()
         {
             VisualTreeAsset asset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/com.pjkt.sdk/Editor/Visual Elements/PjktSdk2xml.uxml");
@@ -37,21 +44,37 @@ namespace PJKT.SDK2
             _notification = new Notification();
             notificationContainer.Add(_notification);
             _notification.style.translate = new Translate(0, 128);
+            
+            currentEvent = rootVisualElement.Query<Label>("CurrentOption");
+            eventOptions = rootVisualElement.Query<VisualElement>("EventOptions");
+            eventLogo = rootVisualElement.Query<VisualElement>("MiddleLogo");
 
             Authentication.OnLoginStatusChanged += OnLoginChanged;
             
             CreateTabs();
-            BoothValidator.GetBoothsInScene();
+            //BoothValidator.GetBoothsInScene();
             PjktEventManager.GetEvents();
 
             await Authentication.TryResumeSession();
             
             if (!Authentication.IsLoggedIn) ShowLogin();
+            
+            #pragma warning disable CS4014
+            PjktPackageChecker.ListAllPackages();
+            #pragma warning  restore CS4014
         }
 
         private void OnDisable()
         {
             Authentication.OnLoginStatusChanged -= OnLoginChanged;
+        }
+
+        private void OnFocus()
+        {
+            if (_selectedTab == null) return;
+            if (_selectedTab.pageType != SDKPageType.Booths) return;
+            BoothPage boothPage = _sdkPageView.Q<BoothPage>();
+            if (boothPage != null) boothPage.RefreshBoothInfo();
         }
 
         //feel free to reorder these
@@ -63,6 +86,7 @@ namespace PJKT.SDK2
             homeTabButton.tooltip = "Booth Info";
             homeTabButton.RegisterCallback<ClickEvent>(OnTabClick);
             _tabsScrollView.Add(homeTab);
+            _defaultTab = homeTab;
             
             //Event Tab
             var eventsTab = new SdkTab(PjktGraphics.GetGraphic("EventTicket"), PjktGraphics.GraphicColors["EventTicket"], SDKPageType.Events);
@@ -127,6 +151,28 @@ namespace PJKT.SDK2
             settingsTabButton.RegisterCallback<ClickEvent>(OnTabClick);
             _tabsScrollView.Add(settingsTab);
         }
+        
+        public async void SetEvent(Project pjktEvent)
+        {
+            currentEvent.text = pjktEvent.name;
+            eventLogo.style.backgroundImage = await PjktGraphics.GetWebTexture(pjktEvent.Logo.path);
+        }
+
+        /* may do this later. prolly not needed
+        public void CreateEventOptions()
+        {
+            eventNames.Clear();
+            eventOptions.Clear();
+            
+            foreach (Project evt in PjktEventManager.Projekts)
+            {
+                //if (!evt.accepting_booth) continue;
+                DateTime deadline = DateTime.Parse(evt.booth_deadline_date);
+                
+                if (deadline < System.DateTime.Now) continue;
+                eventNames.Add(evt.name);
+            }
+        }*/
 
         internal async void OnLoginChanged(object sender, EventArgs e)
         {
@@ -138,6 +184,14 @@ namespace PJKT.SDK2
                 await HideRegister();
                 ShowContent();
                 ShowSideBar();
+                
+                //show booth page by default
+                SDKPage newPage = GetSDKPage(SDKPageType.Booths);
+                if (newPage == null) return;
+                _defaultTab.SelectTab(true);
+                _selectedTab = _defaultTab;
+                _sdkPageView.Add(newPage);
+                newPage.OnTabEnable();
 
                 Notify("Login successful, welcome!", BoothErrorType.Info);
             }
@@ -159,6 +213,14 @@ namespace PJKT.SDK2
             ShowContent();
             ShowSideBar();
 
+            //show booth page by default
+            SDKPage newPage = GetSDKPage(SDKPageType.Booths);
+            if (newPage == null) return;
+            _defaultTab.SelectTab(true);
+            _selectedTab = _defaultTab;
+            _sdkPageView.Add(newPage);
+            newPage.OnTabEnable();
+            
             Notify("Entered as guest, welcome!", BoothErrorType.Info);
         }
         

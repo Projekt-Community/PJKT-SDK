@@ -4,6 +4,9 @@ using System.IO.Compression;
 using UnityEngine;
 
 #if UNITY_EDITOR
+using System.Collections.Generic;
+using System.Text;
+using PJKT.SDK2.NET;
 using UnityEditor;
 using VRC.Udon.Common;
 #endif
@@ -27,11 +30,17 @@ namespace PJKT.SDK2
 
         public readonly string TempDirectory;
         public readonly string CommunityName;
+        public readonly string ExportPath;
         
-        public PjktFileExporter(string  communityName)
+        public PjktFileExporter(string  communityName, string exportPath = "")
         {
-            CommunityName = communityName;
-            TempDirectory = Path.GetTempPath() + "PjktSdk\\" + communityName;
+            //sanitise community name. disallow < > : " / \ | ? *
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+            string cleanName = string.Join("_", communityName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
+            
+            CommunityName = cleanName;
+            TempDirectory = Path.GetTempPath() + "PjktSdk\\" + CommunityName;
+            ExportPath = exportPath;
         }
         
         public string CreateBoothfile(GameObject booth)
@@ -72,18 +81,48 @@ namespace PJKT.SDK2
                 //cleanup the prefab
                 GameObject.DestroyImmediate(tempBooth);
                 if (File.Exists(path)) File.Delete(path);
+                if (File.Exists(path +".meta" )) File.Delete(path + ".meta");
                 return string.Empty;
             }
             
             //do community and booth info json here
+            CommunityInfo communityInfo = new  CommunityInfo();
+            communityInfo.Id = Authentication.ActiveUser.GetCommunityId(CommunityName);
+            communityInfo.CommunityName = CommunityName;
+            communityInfo.CommunityDescription = ""; //cant get this yet. waiting on backend
+            communityInfo.LogoUrl = ""; //cant get this yet. waiting on backend
+            communityInfo.GroupID = booth.GetComponent<BoothDescriptor>().GroupID;
+            
+            SdkBoothInfo sdkBoothInfo = new  SdkBoothInfo();
+            sdkBoothInfo.BoothPrefabName = booth.name;
+            List<string> boothStats = new  List<string>();
+            foreach (BoothStats stat in BoothValidator.Report.Stats)
+            {
+                boothStats.Add(stat.ToString());
+            }
+            sdkBoothInfo.BoothStats = boothStats.ToArray();
+            
+            BoothMetadata metadata = new  BoothMetadata();
+            metadata.boothType = BoothType.SdkBooth;
+            metadata.communityInfo = communityInfo;
+            metadata.sdkBoothInfo = sdkBoothInfo;
+            metadata.EventName = PjktEventManager.SelectedProjekt.name;
+            metadata.BoothUploadDate = DateTime.Now;
+            metadata.BoothUploaderUsername = Authentication.ActiveUser.user.username;
+            
+            string json = JsonUtility.ToJson(metadata, true);
+            File.WriteAllText($"{TempDirectory}\\boothInfo {CommunityName} - {metadata.EventName}.json", json);
             
             //now zip it up
-            string zipPath = "Assets/PjktTemp/" + boothName + ".zip"; //later change it to community name + event name
+            string zipPath = string.IsNullOrEmpty(ExportPath)? "Assets/PjktTemp/" + boothName + ".zip" : ExportPath;
+            if (File.Exists(zipPath)) File.Delete(zipPath);
             ZipFile.CreateFromDirectory(TempDirectory, zipPath);
             
             //cleanup the prefab
             GameObject.DestroyImmediate(tempBooth);
+            
             if (File.Exists(path)) File.Delete(path);
+            if (File.Exists(path +".meta" )) File.Delete(path + ".meta");
 
             if (File.Exists(zipPath)) return zipPath;
             return string.Empty;
