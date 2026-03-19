@@ -54,6 +54,17 @@ namespace PJKT.SDK2
             }
             else
             {
+                //downloaded but not in this project
+                if (File.Exists(_packagePath))
+                {
+                    AssetDatabase.ImportPackage(_packagePath, true);
+                    button.text = "Add to Scene";
+                    return;
+                }
+                
+                //download path doesnt exist
+                if (!Directory.Exists(Path.GetTempPath() + "PjktSdk\\")) Directory.CreateDirectory(Path.GetTempPath() + "PjktSdk\\");
+                
                 //download the file
                 using (var webClient = new System.Net.WebClient())
                 {
