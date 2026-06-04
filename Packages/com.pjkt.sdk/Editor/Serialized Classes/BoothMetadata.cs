@@ -43,8 +43,17 @@ namespace PJKT.SDK2
     [Serializable]
     public class WebToolBoothInfo
     {
-        
+        public List<Pedestal> pedestals;
+        public DateTime timestamp;
+        public string version;
     }
-    
-    //add the serialised stuff from the fang booth setup script
+
+    [Serializable]
+    public class Pedestal
+    {
+        public string id;
+        public string type;
+        public string vrcId;
+        public Vector3 position;
+    }
 }
