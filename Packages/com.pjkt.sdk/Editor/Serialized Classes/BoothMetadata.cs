@@ -21,6 +21,15 @@ namespace PJKT.SDK2
         public CommunityInfo communityInfo;
         public SdkBoothInfo sdkBoothInfo;
         public WebToolBoothInfo webToolBoothInfo;
+        
+        public bool IsValid()
+        {
+            bool valid = true;
+            //probably need a better way to do this 
+            valid &= !string.IsNullOrEmpty(BoothUploaderUsername);
+            
+            return valid;
+        }
     }
 
     [Serializable]
