@@ -121,14 +121,14 @@ namespace PJKT.SDK2
             
             //mochi - diffrent because no vcc
             Shader mochiShader = Shader.Find("Mochie/Standard");
-            if (mochiShader == null)
+            if (mochiShader != null)
             {
                 warnings.Add(new BoothError("Mochie Shaders were found in this project. Please make sure you are using the latest version to avoid conflicts with other booths.", BoothErrorType.Warning));
             }
             
             //silent - also different because no vcc
             Shader silentShader = Shader.Find("Silent/Filamented");
-            if (silentShader == null)
+            if (silentShader != null)
             {
                 warnings.Add(new BoothError("Silent Shaders were found in this project. Please make sure you are using the latest version to avoid conflicts with other booths.", BoothErrorType.Warning));
             }
