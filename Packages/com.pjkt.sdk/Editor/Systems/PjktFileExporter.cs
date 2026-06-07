@@ -89,7 +89,7 @@ namespace PJKT.SDK2
 
             //do community and booth info json here
             CommunityInfo communityInfo = new CommunityInfo();
-            communityInfo.Id = Authentication.ActiveUser.GetCommunityId(CommunityName);
+            communityInfo.Id = Authentication.ActiveUser?.GetCommunityId(CommunityName) ?? -1;
             communityInfo.CommunityName = CommunityName;
             communityInfo.CommunityDescription = ""; //cant get this yet. waiting on backend
             communityInfo.LogoUrl = ""; //cant get this yet. waiting on backend
@@ -110,7 +110,7 @@ namespace PJKT.SDK2
             metadata.sdkBoothInfo = sdkBoothInfo;
             metadata.EventName = PjktEventManager.SelectedProjekt.name;
             metadata.BoothUploadDate = DateTime.Now;
-            metadata.BoothUploaderUsername = Authentication.ActiveUser.user.username;
+            metadata.BoothUploaderUsername = Authentication.ActiveUser?.user.username ?? "Guest";
 
             string json = JsonUtility.ToJson(metadata, true);
             File.WriteAllText(Path.Combine(TempDirectory, $"boothInfo {CommunityName} - {metadata.EventName}.json"), json);
