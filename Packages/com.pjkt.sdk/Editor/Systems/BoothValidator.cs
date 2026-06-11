@@ -281,6 +281,13 @@ namespace PJKT.SDK2
                 materials.UnionWith(renderer.sharedMaterials);
             }
             
+            //hacky solution to not count our stuff
+            Material[] matsToCheck = materials.ToArray();
+            for (int i = 0; i < matsToCheck.Length; i++)
+            {
+                if (matsToCheck[i].shader.name == "PJKT/Video Screen" || matsToCheck[i].shader.name == "PJKT/Slideshow") materials.Remove(matsToCheck[i]);
+            }
+            
             //check for non vrc shaders
             foreach (var mat in materials)
             {
